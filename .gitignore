@@ -1,0 +1,13 @@
+# Python (Flask backend)
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+env/
+
+# React (frontend)
+node_modules/
+.DS_Store
+dist/
+*.log
