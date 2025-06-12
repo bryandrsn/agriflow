@@ -4,7 +4,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Landing from "./pages/Landing";
-import Akun from "./pages/Akun";
+import Profile from "./pages/Profile";
 import Katalog from "./pages/Katalog";
 import Dashboard from "./pages/Dashboard";
 import DashboardAdmin from "./pages/DashboardAdmin";
@@ -67,10 +67,10 @@ function App() {
             }
           />
           <Route
-            path="/akun"
+            path="/profile"
             element={
               <ProtectedRoute allowedRoles={[0, 1]}>
-                <Akun />
+                <Profile />
               </ProtectedRoute>
             }
           />

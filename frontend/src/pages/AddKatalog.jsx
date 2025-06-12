@@ -7,6 +7,7 @@ const AddKatalog = () => {
   const [showConfirm, setShowConfirm] = useState(false);
   const [message, setMessage] = useState("");
   const [saving, setSaving] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
   const [dataAdd, setDataAdd] = useState({
     varietas: "",
     jenis: "",
@@ -24,17 +25,57 @@ const AddKatalog = () => {
     });
   };
 
-  const handleConfirmSave = (e) => {
+  const handleFileChange = (e) => {
+    setSelectedFile(e.target.files[0]);
+  };
+
+  const handleConfirmSave = async (e) => {
     e.preventDefault();
 
     // Validasi field tidak kosong
-    const isEmpty = Object.values(dataAdd).some((value) => value.trim() === "");
+    const isEmpty =
+      dataAdd.varietas.trim() === "" ||
+      dataAdd.jenis.trim() === "" ||
+      dataAdd.umur.trim() === "" ||
+      dataAdd.harga.trim() === "" ||
+      dataAdd.stok.trim() === "" ||
+      dataAdd.deskripsi.trim() === "";
+
     if (isEmpty) {
       alert("Semua field wajib diisi!");
       return;
     }
 
+    if (!selectedFile) {
+      alert("Harap pilih gambar terlebih dahulu!");
+      return;
+    }
+
     setShowConfirm(true);
+  };
+
+  const uploadImage = async () => {
+    if (!selectedFile) return "";
+
+    const data = new FormData();
+    data.append("file", selectedFile);
+    data.append("upload_preset", "agriflow_img");
+    data.append("cloud_name", "dfmfsrwxn");
+
+    try {
+      const res = await fetch(
+        "https://api.cloudinary.com/v1_1/dfmfsrwxn/upload",
+        {
+          method: "POST",
+          body: data,
+        }
+      );
+
+      const uploadedImage = await res.json();
+      return uploadedImage.url;
+    } catch (err) {
+      setMessage(`Terjadi kesalahan saat menambahkan: ${err.message}`);
+    }
   };
 
   const handleSubmit = async () => {
@@ -43,21 +84,41 @@ const AddKatalog = () => {
     setShowConfirm(false);
 
     try {
+      // Upload gambar terlebih dahulu
+      const imageUrl = await uploadImage();
+
+      // Update dataAdd dengan URL gambar
+      const dataToSend = {
+        ...dataAdd,
+        url_gambar: imageUrl,
+      };
+
       const response = await fetch("http://localhost:5000/add-katalog", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify(dataAdd),
+        body: JSON.stringify(dataToSend),
       });
 
       const data = await response.json();
       if (response.ok) {
         setMessage("Katalog berhasil ditambahkan");
+        // Reset form setelah berhasil
+        setDataAdd({
+          varietas: "",
+          jenis: "",
+          umur: "",
+          harga: "",
+          stok: "",
+          url_gambar: "",
+          deskripsi: "",
+        });
+        setSelectedFile(null);
       } else {
         setMessage(data.error || "Gagal menambahkan katalog");
       }
     } catch (err) {
-      setMessage(`Terjadi kesalahan saat menambahkan: ${err}`);
+      setMessage(`Terjadi kesalahan saat menambahkan: ${err.message}`);
     } finally {
       setSaving(false);
     }
@@ -78,6 +139,7 @@ const AddKatalog = () => {
           className="px-2 fw-semibold"
           onSubmit={handleConfirmSave}
         >
+          {/* Form fields tetap sama seperti sebelumnya */}
           <Form.Group controlId="varietas" className="mb-3">
             <Form.Label className="ms-2">Varietas</Form.Label>
             <Form.Control
@@ -139,15 +201,17 @@ const AddKatalog = () => {
             />
           </Form.Group>
           <Form.Group controlId="url_gambar" className="mb-3">
-            <Form.Label className="ms-2">URL Gambar</Form.Label>
+            <Form.Label className="ms-2">Gambar</Form.Label>
             <Form.Control
-              className="rounded-4 px-4 py-2"
-              type="text"
+              className="rounded-4"
+              type="file"
               name="url_gambar"
-              placeholder="Masukkan URL Gambar"
-              value={dataAdd.url_gambar}
-              onChange={handleChange}
-              style={{ backgroundColor: "#D9D9D9", border: "none" }}
+              onChange={handleFileChange}
+              style={{
+                backgroundColor: "#D9D9D9",
+                border: "none",
+                borderRadius: "10px",
+              }}
             />
           </Form.Group>
           <Form.Group controlId="deskripsi" className="mb-3">

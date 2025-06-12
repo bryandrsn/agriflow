@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Container, Row, Col, Card, Button, Alert } from "react-bootstrap";
 import DashboardNavbar from "../components/DashboardNavbar";
 import Footer from "../components/Footer";
+import Komentar from "../components/Komentar";
 
 const DetailBenihAdmin = () => {
   const { id } = useParams();
@@ -55,8 +56,8 @@ const DetailBenihAdmin = () => {
                 <div className="d-flex justify-content-center mt-3">
                   <Card.Img
                     className="w-50 p-3 card-img-top"
-                    src="https://picsum.photos/350/350"
-                    alt="blablabla"
+                    src={dataDetail.url_gambar}
+                    alt={dataDetail.varietas}
                     style={{ borderRadius: "40px", objectFit: "contain" }}
                   />
                 </div>
@@ -100,6 +101,7 @@ const DetailBenihAdmin = () => {
           </Row>
         )}
       </Container>
+      <Komentar benih_id={id} isAdmin={true} />
       <Footer />
     </div>
   );

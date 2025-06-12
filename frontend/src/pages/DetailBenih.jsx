@@ -147,8 +147,8 @@ const DetailBenih = () => {
                   </Button>
                   <Card.Img
                     className="w-50 p-3 card-img-top"
-                    src="https://picsum.photos/350/350"
-                    alt="blablabla"
+                    src={dataDetail.url_gambar}
+                    alt={dataDetail.varietas}
                     style={{ borderRadius: "40px", objectFit: "contain" }}
                   />
                 </div>

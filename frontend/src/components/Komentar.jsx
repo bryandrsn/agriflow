@@ -3,7 +3,7 @@ import { Container, Card, Alert, Button, Form } from "react-bootstrap";
 import { FaUserCircle, FaPaperPlane, FaReply } from "react-icons/fa";
 import { MdEdit, MdDeleteForever } from "react-icons/md";
 
-const Komentar = ({ benih_id }) => {
+const Komentar = ({ benih_id, isAdmin = false }) => {
   const [fetchedComments, setFetchedComments] = useState([]);
   const [userId, setUserId] = useState(null);
   const [message, setMessage] = useState("");
@@ -12,6 +12,8 @@ const Komentar = ({ benih_id }) => {
   const [replyContents, setReplyContents] = useState({});
   const [showFormById, setShowFormById] = useState(null);
   const [replyingTo, setReplyingTo] = useState(null);
+  const [editingComment, setEditingComment] = useState(null);
+  const [editContent, setEditContent] = useState("");
 
   const fetchComments = useCallback(async () => {
     try {
@@ -26,7 +28,6 @@ const Komentar = ({ benih_id }) => {
       if (response.ok) {
         setFetchedComments(data.comments);
         setUserId(data.user_id);
-        console.log(data);
       } else {
         setMessage(data.error || "Gagal memuat data komentar");
       }
@@ -49,6 +50,8 @@ const Komentar = ({ benih_id }) => {
     setReplyContents({});
     setReplyingTo(null);
     setShowFormById(null);
+    setEditingComment(null);
+    setEditContent("");
   };
 
   const formatWIB = (timestamp) => {
@@ -62,13 +65,6 @@ const Komentar = ({ benih_id }) => {
       minute: "numeric",
     });
   };
-
-  // const formEdit = (comment) => {
-  //   setMainCommentContent(comment.content);
-  //   setShowButton(true);
-  //   setReplyingTo(comment.id);
-  //   setShowFormById(null);
-  // };
 
   const handleAddComment = async (e) => {
     e.preventDefault();
@@ -101,10 +97,78 @@ const Komentar = ({ benih_id }) => {
     }
   };
 
+  const handleEditComment = (comment) => {
+    setEditingComment(comment.id);
+    setEditContent(comment.content);
+    setShowFormById(null);
+  };
+
+  const handleUpdateComment = async (commentId) => {
+    try {
+      const response = await fetch("http://localhost:5000/edit-comment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          comment_id: commentId,
+          content: editContent,
+          account_id: userId,
+        }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        setMessage("Komentar berhasil diperbarui");
+        resetCommentForm();
+        fetchComments();
+      } else {
+        setMessage(data.error || "Gagal memperbarui komentar");
+      }
+    } catch (err) {
+      setMessage("Terjadi kesalahan saat memperbarui komentar: " + err);
+    }
+  };
+
+  const handleDeleteComment = async (commentId) => {
+    try {
+      const response = await fetch("http://localhost:5000/delete-comment", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          comment_id: commentId,
+          account_id: userId,
+        }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        setMessage("Komentar berhasil dihapus");
+        resetCommentForm();
+        fetchComments();
+      } else {
+        setMessage(data.error || "Gagal menghapus komentar");
+      }
+    } catch (err) {
+      setMessage("Terjadi kesalahan saat menghapus komentar: " + err);
+    }
+  };
+
+  // Fungsi untuk mengecek apakah user bisa mengedit komentar
+  const canEditComment = (comment) => {
+    return comment.account_id === userId;
+  };
+
+  // Fungsi untuk mengecek apakah user bisa menghapus komentar
+  const canDeleteComment = (comment) => {
+    return isAdmin || comment.account_id === userId;
+  };
+
   return (
     <Container className="bg-white shadow my-5 p-4 col-12 col-md-10 col-lg-8 mx-auto">
       <h2 className="display-6 fw-semibold fs-3">Komentar</h2>
-      <p>{typeof userId}</p>
+
+      {/* Form komentar utama - tersedia untuk semua */}
       <Form method="POST" onSubmit={handleAddComment} className="mb-2">
         <Form.Control
           as="textarea"
@@ -167,80 +231,17 @@ const Komentar = ({ benih_id }) => {
                     {formatWIB(comment.updated_at)}
                   </p>
                 </Card.Title>
-                <Card.Text>{comment.content}</Card.Text>
 
-                {showFormById !== comment.id ? (
+                {editingComment === comment.id ? (
                   <>
-                    <Button
-                      size="sm"
-                      variant="outline-secondary"
-                      onClick={() => {
-                        setShowFormById(comment.id);
-                        setReplyingTo(comment.id);
-                        setReplyContents((prev) => ({
-                          ...prev,
-                          [comment.id]: "",
-                        }));
-                      }}
-                    >
-                      <FaReply className="me-2" />
-                      Balas Komentar
-                    </Button>
-                    {comment.account_id === userId && (
-                      <div className="float-end d-flex gap-3">
-                        <Button
-                          variant="transparent"
-                          style={{
-                            color: "#628B35",
-                            border: "none",
-                            padding: 0,
-                            display: "inline-flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                          }}
-                          // onClick={() => handleEditComment(comment.id)}
-                        >
-                          <MdEdit color="#628B35" className="me-1" />
-                          Edit
-                        </Button>
-                        <Button
-                          variant="transparent"
-                          style={{
-                            color: "#628B35",
-                            border: "none",
-                            padding: 0,
-                            display: "inline-flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                          }}
-                          // onClick={() => handleDeleteComment(comment.id)}
-                        >
-                          <MdDeleteForever color="#628B35" className="me-1" />
-                          Hapus
-                        </Button>
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <Form
-                    method="POST"
-                    onSubmit={handleAddComment}
-                    className="mt-2"
-                  >
                     <Form.Control
                       as="textarea"
                       rows={3}
-                      name="content"
-                      value={replyContents[comment.id] || ""}
-                      onChange={(e) =>
-                        setReplyContents((prev) => ({
-                          ...prev,
-                          [comment.id]: e.target.value,
-                        }))
-                      }
-                      placeholder={`Balas komentar ${comment.username}`}
+                      value={editContent}
+                      onChange={(e) => setEditContent(e.target.value)}
+                      className="mb-2"
                     />
-                    <div className="d-flex justify-content-end mt-2">
+                    <div className="d-flex justify-content-end">
                       <Button
                         variant="outline-secondary"
                         className="me-2"
@@ -250,19 +251,125 @@ const Komentar = ({ benih_id }) => {
                       </Button>
                       <Button
                         variant="outline-success"
-                        type="submit"
-                        className="d-flex align-items-center"
-                        disabled={!replyContents[comment.id]?.trim()}
+                        onClick={() => handleUpdateComment(comment.id)}
+                        disabled={!editContent.trim()}
                       >
-                        <FaPaperPlane className="me-2" />
-                        Kirim komentar
+                        Simpan Perubahan
                       </Button>
                     </div>
-                  </Form>
+                  </>
+                ) : (
+                  <>
+                    <Card.Text>{comment.content}</Card.Text>
+                    {showFormById !== comment.id ? (
+                      <>
+                        {/* Tombol Balas - tersedia untuk semua */}
+                        <Button
+                          size="sm"
+                          variant="outline-secondary"
+                          onClick={() => {
+                            setShowFormById(comment.id);
+                            setReplyingTo(comment.id);
+                            setReplyContents((prev) => ({
+                              ...prev,
+                              [comment.id]: "",
+                            }));
+                          }}
+                        >
+                          <FaReply className="me-2" />
+                          Balas Komentar
+                        </Button>
+
+                        {/* Tombol Edit/Hapus */}
+                        <div className="float-end d-flex gap-3">
+                          {/* Tombol Edit - hanya untuk pemilik komentar */}
+                          {canEditComment(comment) && (
+                            <Button
+                              variant="transparent"
+                              style={{
+                                color: "#628B35",
+                                border: "none",
+                                padding: 0,
+                                display: "inline-flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                              }}
+                              onClick={() => handleEditComment(comment)}
+                            >
+                              <MdEdit color="#628B35" className="me-1" />
+                              Edit
+                            </Button>
+                          )}
+
+                          {/* Tombol Hapus - untuk admin atau pemilik */}
+                          {canDeleteComment(comment) && (
+                            <Button
+                              variant="transparent"
+                              style={{
+                                color: "#628B35",
+                                border: "none",
+                                padding: 0,
+                                display: "inline-flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                              }}
+                              onClick={() => handleDeleteComment(comment.id)}
+                            >
+                              <MdDeleteForever
+                                color="#628B35"
+                                className="me-1"
+                              />
+                              Hapus
+                            </Button>
+                          )}
+                        </div>
+                      </>
+                    ) : (
+                      /* Form Balasan - tersedia untuk semua */
+                      <Form
+                        method="POST"
+                        onSubmit={handleAddComment}
+                        className="mt-2"
+                      >
+                        <Form.Control
+                          as="textarea"
+                          rows={3}
+                          name="content"
+                          value={replyContents[comment.id] || ""}
+                          onChange={(e) =>
+                            setReplyContents((prev) => ({
+                              ...prev,
+                              [comment.id]: e.target.value,
+                            }))
+                          }
+                          placeholder={`Balas komentar ${comment.username}`}
+                        />
+                        <div className="d-flex justify-content-end mt-2">
+                          <Button
+                            variant="outline-secondary"
+                            className="me-2"
+                            onClick={resetCommentForm}
+                          >
+                            Batal
+                          </Button>
+                          <Button
+                            variant="outline-success"
+                            type="submit"
+                            className="d-flex align-items-center"
+                            disabled={!replyContents[comment.id]?.trim()}
+                          >
+                            <FaPaperPlane className="me-2" />
+                            Kirim komentar
+                          </Button>
+                        </div>
+                      </Form>
+                    )}
+                  </>
                 )}
               </Card.Body>
             </Card>
 
+            {/* Bagian Balasan Komentar */}
             {replies
               .filter((reply) => reply.parent_id === comment.id)
               .map((reply) => (
@@ -289,82 +396,17 @@ const Komentar = ({ benih_id }) => {
                         {formatWIB(reply.updated_at)}
                       </p>
                     </Card.Subtitle>
-                    <Card.Text>{reply.content}</Card.Text>
-                    {showFormById !== reply.id ? (
+
+                    {editingComment === reply.id ? (
                       <>
-                        <Button
-                          size="sm"
-                          variant="outline-secondary"
-                          onClick={() => {
-                            setShowFormById(reply.id);
-                            setReplyingTo(comment.id);
-                            setReplyContents((prev) => ({
-                              ...prev,
-                              [reply.id]: "",
-                            }));
-                          }}
-                        >
-                          <FaReply className="me-2" />
-                          Balas Komentar
-                        </Button>
-                        {reply.account_id === userId && (
-                          <div className="float-end d-flex gap-3">
-                            <Button
-                              variant="transparent"
-                              style={{
-                                color: "#628B35",
-                                border: "none",
-                                padding: 0,
-                                display: "inline-flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                              }}
-                              // onClick={() => handleEditComment(reply.id)}
-                            >
-                              <MdEdit color="#628B35" className="me-1" />
-                              Edit
-                            </Button>
-                            <Button
-                              variant="transparent"
-                              style={{
-                                color: "#628B35",
-                                border: "none",
-                                padding: 0,
-                                display: "inline-flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                              }}
-                              // onClick={() => handleDeleteComment(reply.id)}
-                            >
-                              <MdDeleteForever
-                                color="#628B35"
-                                className="me-1"
-                              />
-                              Hapus
-                            </Button>
-                          </div>
-                        )}
-                      </>
-                    ) : (
-                      <Form
-                        method="POST"
-                        onSubmit={handleAddComment}
-                        className="mt-2"
-                      >
                         <Form.Control
                           as="textarea"
                           rows={3}
-                          name="content"
-                          value={replyContents[reply.id] || ""}
-                          onChange={(e) =>
-                            setReplyContents((prev) => ({
-                              ...prev,
-                              [reply.id]: e.target.value,
-                            }))
-                          }
-                          placeholder={`Balas komentar ${reply.username}`}
+                          value={editContent}
+                          onChange={(e) => setEditContent(e.target.value)}
+                          className="mb-2"
                         />
-                        <div className="d-flex justify-content-end mt-2">
+                        <div className="d-flex justify-content-end">
                           <Button
                             variant="outline-secondary"
                             className="me-2"
@@ -374,15 +416,120 @@ const Komentar = ({ benih_id }) => {
                           </Button>
                           <Button
                             variant="outline-success"
-                            type="submit"
-                            className="d-flex align-items-center"
-                            disabled={!replyContents[reply.id]?.trim()}
+                            onClick={() => handleUpdateComment(reply.id)}
+                            disabled={!editContent.trim()}
                           >
-                            <FaPaperPlane className="me-2" />
-                            Kirim komentar
+                            Simpan Perubahan
                           </Button>
                         </div>
-                      </Form>
+                      </>
+                    ) : (
+                      <>
+                        <Card.Text>{reply.content}</Card.Text>
+                        {showFormById !== reply.id ? (
+                          <>
+                            {/* Tombol Balas - tersedia untuk semua */}
+                            <Button
+                              size="sm"
+                              variant="outline-secondary"
+                              onClick={() => {
+                                setShowFormById(reply.id);
+                                setReplyingTo(comment.id);
+                                setReplyContents((prev) => ({
+                                  ...prev,
+                                  [reply.id]: "",
+                                }));
+                              }}
+                            >
+                              <FaReply className="me-2" />
+                              Balas Komentar
+                            </Button>
+
+                            {/* Tombol Edit/Hapus */}
+                            <div className="float-end d-flex gap-3">
+                              {/* Tombol Edit - hanya untuk pemilik balasan */}
+                              {canEditComment(reply) && (
+                                <Button
+                                  variant="transparent"
+                                  style={{
+                                    color: "#628B35",
+                                    border: "none",
+                                    padding: 0,
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                  }}
+                                  onClick={() => handleEditComment(reply)}
+                                >
+                                  <MdEdit color="#628B35" className="me-1" />
+                                  Edit
+                                </Button>
+                              )}
+
+                              {/* Tombol Hapus - untuk admin atau pemilik */}
+                              {canDeleteComment(reply) && (
+                                <Button
+                                  variant="transparent"
+                                  style={{
+                                    color: "#628B35",
+                                    border: "none",
+                                    padding: 0,
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                  }}
+                                  onClick={() => handleDeleteComment(reply.id)}
+                                >
+                                  <MdDeleteForever
+                                    color="#628B35"
+                                    className="me-1"
+                                  />
+                                  Hapus
+                                </Button>
+                              )}
+                            </div>
+                          </>
+                        ) : (
+                          /* Form Balasan - tersedia untuk semua */
+                          <Form
+                            method="POST"
+                            onSubmit={handleAddComment}
+                            className="mt-2"
+                          >
+                            <Form.Control
+                              as="textarea"
+                              rows={3}
+                              name="content"
+                              value={replyContents[reply.id] || ""}
+                              onChange={(e) =>
+                                setReplyContents((prev) => ({
+                                  ...prev,
+                                  [reply.id]: e.target.value,
+                                }))
+                              }
+                              placeholder={`Balas komentar ${reply.username}`}
+                            />
+                            <div className="d-flex justify-content-end mt-2">
+                              <Button
+                                variant="outline-secondary"
+                                className="me-2"
+                                onClick={resetCommentForm}
+                              >
+                                Batal
+                              </Button>
+                              <Button
+                                variant="outline-success"
+                                type="submit"
+                                className="d-flex align-items-center"
+                                disabled={!replyContents[reply.id]?.trim()}
+                              >
+                                <FaPaperPlane className="me-2" />
+                                Kirim komentar
+                              </Button>
+                            </div>
+                          </Form>
+                        )}
+                      </>
                     )}
                   </Card.Body>
                 </Card>

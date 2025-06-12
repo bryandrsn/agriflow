@@ -7,14 +7,16 @@ const DashboardNavBar = ({ role }) => {
   return (
     <Navbar
       variant="dark"
-      className="sticky-top shadow-lg py-0"
-      style={{ backgroundColor: "#103713", height: "60px" }}
+      className="sticky-top shadow-lg"
+      style={{ backgroundColor: "#103713" }}
     >
       <Container className="align-items-center">
         <Navbar.Brand href="/" className="d-flex align-items-center">
-          <div style={{ height: "160px" }}>
-            <Image src={logo} className="img-fluid h-100" alt="Logo" />
-          </div>
+          <Image
+            src={logo}
+            alt="Logo"
+            style={{ height: "auto", maxWidth: "175px", width: "100%" }}
+          />
         </Navbar.Brand>
         <Navbar.Collapse />
         <Nav>
@@ -30,7 +32,7 @@ const DashboardNavBar = ({ role }) => {
           {role === "admin" && (
             <Nav.Link href="/optimasi">Optimasi Irigasi</Nav.Link>
           )}
-          <Nav.Link href="/akun">
+          <Nav.Link href="/profile">
             <FaUser
               className="rounded-circle ms-3"
               style={{ width: "30px", height: "30px", color: "white" }}

@@ -13,7 +13,7 @@ import DashboardNavbar from "../components/DashboardNavbar";
 import Footer from "../components/Footer";
 import { useNavigate } from "react-router-dom";
 
-const Akun = () => {
+const Profile = () => {
   const [profileData, setProfileData] = useState({
     username: "",
     email: "",
@@ -458,4 +458,4 @@ const Akun = () => {
   );
 };
 
-export default Akun;
+export default Profile;

@@ -364,6 +364,43 @@ def add_katalog():
     finally:
         if cur:
             cur.close()
+
+# Edit data katalog
+@app.route('/edit-katalog', methods=['POST'])
+@login_required
+def edit_katalog():
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "Data harus berupa JSON"}), 400
+
+    if None in [data.get("id"), data.get("jenis"), data.get("varietas"), data.get("umur"), data.get("harga"), data.get("stok"), data.get("deskripsi"), data.get("url_gambar")]:
+        return jsonify({"error": "Semua field harus diisi"}), 400
+
+    id = data.get("id")
+    jenis = data.get("jenis")
+    varietas = data.get("varietas")
+    umur = data.get("umur")
+    harga = data.get("harga")
+    stok = data.get("stok")
+    deskripsi = data.get("deskripsi")
+    url_gambar = data.get("url_gambar")
+
+    cur = None
+    try:
+        cur = mysql.connection.cursor()
+        cur.execute(
+            "UPDATE data_benih SET jenis_benih = %s, varietas = %s, umur = %s, harga = %s, stok = %s, deskripsi = %s, url_gambar = %s WHERE id = %s",
+            (jenis, varietas, umur, harga, stok, deskripsi, url_gambar, id)
+        )
+        mysql.connection.commit()
+        return jsonify({"message": "Katalog berhasil diubah"}), 200
+
+    except Exception as e:
+        return jsonify({"error": f"Terjadi kesalahan server: {str(e)}"}), 500
+
+    finally:
+        if cur:
+            cur.close()
             
 # Hapus data katalog
 @app.route('/remove-katalog', methods=['DELETE'])
@@ -377,7 +414,7 @@ def remove_katalog():
         return jsonify({"error": "ID harus diisi"}), 400
 
     id = data.get("id")
-    print(id)
+
     cur = None
     try:
         cur = mysql.connection.cursor()
@@ -488,7 +525,6 @@ def remove_wishlist():
         if cur:
             cur.close()
 
-
 @app.route('/get-comments/<int:benih_id>', methods=['GET'])
 @login_required
 def get_comments(benih_id):
@@ -507,7 +543,7 @@ def get_comments(benih_id):
             """, (benih_id,))
 
         comments = cur.fetchall()
-        print(comments)
+
         return jsonify({"comments": comments, 
                         "user_id": current_user.id}), 200
 
@@ -547,6 +583,117 @@ def add_comment():
     finally:
         if cur:
             cur.close()
+
+@app.route('/edit-comment', methods=['POST'])
+@login_required
+def edit_comment():
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "Data harus berupa JSON"}), 400
+
+    comment_id = data.get("comment_id")
+    if not comment_id:
+        return jsonify({"error": "ID komentar harus diisi"}), 400
+
+    content = data.get("content")
+    account_id = data.get("account_id")
+    if account_id != current_user.id:
+        return jsonify({"error": "Anda tidak memiliki izin untuk mengubah komentar ini"}), 403
+    
+    cur = None
+    try:
+        cur = mysql.connection.cursor()
+        cur.execute("UPDATE comments SET content = %s WHERE id = %s AND account_id = %s", (content, comment_id, account_id))
+        mysql.connection.commit()
+        return jsonify({"message": "Komentar berhasil diubah"}), 200
+
+    except Exception as e:
+        return jsonify({"error": f"Terjadi kesalahan server: {str(e)}"}), 500
+
+    finally:
+        if cur:
+            cur.close()
+
+# SOLUSI ALTERNATIF YANG LEBIH SEDERHANA
+@app.route('/delete-comment', methods=['DELETE'])
+@login_required
+def remove_comment():
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "Data harus berupa JSON"}), 400
+
+    comment_id = data.get("comment_id")
+    if not comment_id:
+        return jsonify({"error": "ID komentar harus diisi"}), 400
+
+    cur = None
+    try:
+        cur = mysql.connection.cursor()
+        
+        # Jika user adalah admin, bisa menghapus komentar siapa saja
+        if current_user.is_admin:
+            cur.execute("DELETE FROM comments WHERE id = %s", (comment_id,))
+        else:
+            # Jika bukan admin, hanya bisa menghapus komentar sendiri
+            cur.execute("DELETE FROM comments WHERE id = %s AND account_id = %s", (comment_id, current_user.id))
+        
+        if cur.rowcount == 0:
+            return jsonify({"error": "Komentar tidak ditemukan atau Anda tidak memiliki izin"}), 404
+            
+        mysql.connection.commit()
+        return jsonify({"message": "Komentar berhasil dihapus"}), 200
+
+    except Exception as e:
+        mysql.connection.rollback()
+        return jsonify({"error": f"Terjadi kesalahan server: {str(e)}"}), 500
+
+    finally:
+        if cur:
+            cur.close()
+
+
+# Penerapan AI
+import joblib
+import numpy as np
+import pandas as pd
+
+model = joblib.load('xgb_model.pkl')
+scaler = joblib.load('scaler.pkl')
+encoder = joblib.load('encoder.pkl')
+
+numerical_features = ["precip_mm", "humidity", "temp_c", "heatindex_c", 
+                     "wind_kph", "cloud", "uv", "dewpoint_c", "is_day", 
+                     "umur", "umur_max"]
+categorical_features = ["jenis_benih"]
+
+@app.route('/predict', methods=['POST'])
+def predict():
+    try:
+        # Ambil data dari request
+        data = request.json
+        
+        # Konversi ke DataFrame
+        input_data = pd.DataFrame([data])
+        
+        # Preprocessing
+        num_data = scaler.transform(input_data[numerical_features])
+        cat_data = encoder.transform(input_data[categorical_features])
+        
+        # Gabungkan fitur
+        processed_data = np.concatenate([cat_data, num_data], axis=1)
+        
+        # Prediksi
+        prediction = model.predict(processed_data)
+        proba = model.predict_proba(processed_data)
+        
+        # Return hasil
+        return jsonify({
+            'prediction': int(prediction[0]),
+            'probability': float(proba[0][1]),
+            'status': 'success'
+        })
+    except Exception as e:
+        return jsonify({'error': str(e), 'status': 'failed'})
 
 if __name__ == '__main__':
     app.run(debug=True)
