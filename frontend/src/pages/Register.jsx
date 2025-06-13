@@ -124,14 +124,13 @@ const Register = () => {
       <LandingNavbar />
       <Container className="py-5">
         <Row className="justify-content-center align-items-center">
-          <Col lg={6} className="d-none d-lg-block pe-5">
+          <Col lg={6} className="d-none d-lg-block">
             <div className="text-center">
               <Image
-                src="https://picsum.photos/350/350"
+                src="/assets/deco-1.png"
                 alt="Dekorasi Register"
                 fluid
                 rounded
-                className="shadow"
                 style={{
                   width: "auto",
                   maxHeight: "350px",

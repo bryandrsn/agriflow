@@ -399,7 +399,6 @@ const Profile = () => {
                 className="px-4 rounded-3 fw-bold"
                 onClick={handleLogout}
               >
-                <i className="bi bi-box-arrow-right me-2"></i>
                 Logout
               </Button>
             </div>
@@ -453,7 +452,7 @@ const Profile = () => {
         </Modal.Footer>
       </Modal>
 
-      <Footer />
+      <Footer role={role}/>
     </div>
   );
 };

@@ -10,14 +10,15 @@ import {
   FaFacebook,
   FaInstagram,
   FaTwitter,
+  FaChartLine
 } from "react-icons/fa";
 import logo from "../assets/logoagriflow.png";
 
-const Footer = () => {
+const Footer = ({role}) => {
   return (
     <footer
       className="text-white pt-5 pb-2"
-      style={{ backgroundColor: "#103713" }}
+      style={{ backgroundColor: "#388E3C" }}
     >
       <Container>
         <Row className="g-5">
@@ -56,22 +57,45 @@ const Footer = () => {
             </div>
           </Col>
 
+          {role ?
           <Col xs={6} md={3} lg={2} className="mb-4 mb-md-0">
-            <h6 className="fw-bold mb-3 text-center text-md-start">Menu</h6>
+              <h6 className="fw-bold mb-3 text-center text-md-start">Menu</h6>
             <ul className="list-unstyled">
-              <li className="mb-2 text-center text-md-start">
-                <a
-                  href="/dashboard"
-                  className="text-white text-decoration-none"
-                >
-                  <FaHome className="me-2" /> Dashboard
-                </a>
-              </li>
+              {role === "user" &&
+                <li className="mb-2 text-center text-md-start">
+                  <a
+                    href="/dashboard"
+                    className="text-white text-decoration-none"
+                  >
+                    <FaHome className="me-2" /> Dashboard
+                  </a>
+                </li>
+              }
+              {role === "admin" &&
+                <li className="mb-2 text-center text-md-start">
+                  <a
+                    href="/dashboard-admin"
+                    className="text-white text-decoration-none"
+                  >
+                    <FaHome className="me-2" /> Dashboard
+                  </a>
+                </li>
+              }
+              {role === "user" &&
               <li className="mb-2 text-center text-md-start">
                 <a href="/katalog" className="text-white text-decoration-none">
                   <FaSeedling className="me-2" /> Katalog
                 </a>
               </li>
+              }
+              {role === "admin" &&
+              <li className="mb-2 text-center text-md-start">
+                <a href="/katalog-admin" className="text-white text-decoration-none">
+                  <FaSeedling className="me-2" /> Katalog
+                </a>
+              </li>
+              }
+              {role === "user" &&
               <li className="text-center text-md-start">
                 <a
                   href="/wishlists"
@@ -80,8 +104,20 @@ const Footer = () => {
                   <FaHeart className="me-2" /> Wishlists
                 </a>
               </li>
+              }
+              {role === "admin" &&
+              <li className="text-center text-md-start">
+                <a
+                  href="/optimasi"
+                  className="text-white text-decoration-none"
+                >
+                  <FaChartLine className="me-2" /> Optimasi
+                </a>
+              </li>
+              }
             </ul>
           </Col>
+          : null}
 
           <Col xs={6} md={6} lg={3} className="mb-4 mb-md-0">
             <h6 className="fw-bold mb-3 text-center text-md-start">

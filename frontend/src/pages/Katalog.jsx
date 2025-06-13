@@ -61,9 +61,8 @@ const Katalog = () => {
                   </div>
                   <div className="mt-3">
                     <Button
-                      variant="primary"
+                      variant="success"
                       className="me-2 w-100 mb-2"
-                      style={{ backgroundColor: "#628B35" }}
                     >
                       Order
                     </Button>
@@ -81,7 +80,7 @@ const Katalog = () => {
           ))}
         </Row>
       </Container>
-      <Footer />
+      <Footer role="user"/>
     </div>
   );
 };

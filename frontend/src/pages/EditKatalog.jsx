@@ -269,8 +269,8 @@ const EditKatalog = () => {
             </Button>
             <Button
               className="mt-4 rounded-4 w-25"
+              variant="success"
               type="submit"
-              style={{ backgroundColor: "#628B35", border: "none" }}
               disabled={saving}
             >
               {saving ? "Menyimpan..." : "Simpan"}
@@ -294,7 +294,7 @@ const EditKatalog = () => {
         </Modal.Footer>
       </Modal>
 
-      <Footer />
+      <Footer role="admin"/>
     </div>
   );
 };

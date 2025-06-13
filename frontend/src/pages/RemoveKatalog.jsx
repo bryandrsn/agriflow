@@ -132,7 +132,7 @@ const RemoveKatalog = () => {
           </Button>
         </Modal.Footer>
       </Modal>
-      <Footer />
+      <Footer role="admin"/>
     </div>
   );
 };

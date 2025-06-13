@@ -238,8 +238,8 @@ const AddKatalog = () => {
             </Button>
             <Button
               className="mt-4 rounded-4 w-25"
+              variant="success"
               type="submit"
-              style={{ backgroundColor: "#628B35", border: "none" }}
               disabled={saving}
             >
               {saving ? "Menambahkan..." : "Tambah"}
@@ -263,7 +263,7 @@ const AddKatalog = () => {
         </Modal.Footer>
       </Modal>
 
-      <Footer />
+      <Footer role="admin"/>
     </div>
   );
 };

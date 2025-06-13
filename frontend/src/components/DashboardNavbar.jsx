@@ -8,7 +8,7 @@ const DashboardNavBar = ({ role }) => {
     <Navbar
       variant="dark"
       className="sticky-top shadow-lg"
-      style={{ backgroundColor: "#103713" }}
+      style={{ backgroundColor: "#388E3C" }}
     >
       <Container className="align-items-center">
         <Navbar.Brand href="/" className="d-flex align-items-center">

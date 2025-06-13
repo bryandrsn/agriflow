@@ -1,6 +1,6 @@
 import React from 'react';
 import '../styles/landing.css';
-import { Container, Row, Col, Button } from 'react-bootstrap';
+import { Container, Row, Col, Button, Image } from 'react-bootstrap';
 import DashboardNavbar from '../components/DashboardNavbar';
 import Footer from '../components/Footer';
 
@@ -28,12 +28,23 @@ const Dashboard = () => {
                             penting tersedia dalam satu platform yang mudah digunakan.
                         </p>
                     </Col>
-                    <Col md={6} className='border'>
-                        <img src="/path/to/logo.png" alt="logo" style={{ maxWidth: '100%', height: 'auto' }}/>
+                    <Col md={6} className='d-flex justify-content-center'>
+                        <Image
+                            src="/assets/deco-1.png"
+                            alt="Dekorasi landing"
+                            fluid
+                            rounded
+                            className="shadow"
+                            style={{
+                            width: "auto",
+                            maxHeight: "350px",
+                            objectFit: "cover",
+                            }}
+                        />
                     </Col>
                 </Row>
             </Container>
-            <Footer />
+            <Footer role="user"/>
         </div>
     );
 }

@@ -1,9 +1,8 @@
 .bg {
     min-height: 200vh;
-    background: url('../assets/bgLanding.jpg');
+    background: url('../assets/db6.jpg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
     z-index: 0;
 }
-

@@ -147,7 +147,7 @@ const KatalogAdmin = () => {
           </div>
         )}
       </div>
-      <Footer />
+      <Footer role="admin"/>
     </div>
   );
 };

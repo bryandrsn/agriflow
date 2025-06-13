@@ -152,7 +152,7 @@ const Wishlists = () => {
                       Detail Produk
                     </Button>
                     <Button
-                      variant="primary"
+                      variant="outline-success"
                       size="sm"
                       className="text-uppercase fw-semibold"
                     >
@@ -165,7 +165,7 @@ const Wishlists = () => {
           </Table>
         )}
       </Container>
-      <Footer />
+      <Footer role="user"/>
     </div>
   );
 };

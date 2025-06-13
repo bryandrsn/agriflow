@@ -1,6 +1,6 @@
 import React from "react";
 import "../styles/landing.css";
-import { Container, Row, Col, Button } from "react-bootstrap";
+import { Container, Row, Col, Button, Image } from "react-bootstrap";
 import "../components/LandingNavbar";
 import LandingNavbar from "../components/LandingNavbar";
 import Footer from "../components/Footer";
@@ -23,7 +23,7 @@ const Landing = () => {
           Selengkapnya
         </Button>
       </Container>
-      <Container className="vh-100">
+      <Container className="vh-100 mb-4">
         <Row
           id="about"
           className="h-100 align-items-center"
@@ -37,19 +37,25 @@ const Landing = () => {
             <h3 className="display-5">Selamat Datang!</h3>
             <br />
             <p className="lead">
-              AgriFlow adalah sebuah website yang dikembangkan untuk menemani
-              para petani. AgriFlow menghadirkan solusi digital bagi petani
-              untuk mencari produk pertanian, berbagi pengalaman melalui forum,
-              dan membandingkan berbagai jenis benih secara praktis. Semua
-              informasi penting tersedia dalam satu platform yang mudah
-              digunakan.
+              AgriFlow adalah sebuah website yang dikembangkan<br/>untuk
+              menemani para petani. AgriFlow menghadirkan<br/>solusi digital bagi
+              petani untuk mencari produk<br/>pertanian, berbagi pengalaman melalui forum, 
+              dan membandingkan berbagai jenis benih secara praktis.<br/>Semua informasi
+              penting tersedia dalam satu platform<br/>yang mudah digunakan.
             </p>
           </Col>
-          <Col md={6} className="border">
-            <img
-              src="/path/to/logo.png"
-              alt="logo"
-              style={{ maxWidth: "100%", height: "auto" }}
+          <Col md={6} className="d-flex justify-content-center">
+            <Image
+              src="/assets/deco-1.png"
+              alt="Dekorasi landing"
+              fluid
+              rounded
+              className="shadow"
+              style={{
+              width: "auto",
+              maxHeight: "350px",
+              objectFit: "cover",
+              }}
             />
           </Col>
         </Row>

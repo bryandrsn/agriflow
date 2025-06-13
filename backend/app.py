@@ -653,18 +653,20 @@ def remove_comment():
 
 
 # Penerapan AI
-import joblib
-import numpy as np
-import pandas as pd
+# import joblib
+# import numpy as np
+# import pandas as pd
 
-model = joblib.load('xgb_model.pkl')
-scaler = joblib.load('scaler.pkl')
-encoder = joblib.load('encoder.pkl')
+# model = joblib.load('models/xgb_model.pkl')
+# scaler = joblib.load('models/scaler.pkl')
+# encoder = joblib.load('models/encoder.pkl')
 
-numerical_features = ["precip_mm", "humidity", "temp_c", "heatindex_c", 
-                     "wind_kph", "cloud", "uv", "dewpoint_c", "is_day", 
-                     "umur", "umur_max"]
-categorical_features = ["jenis_benih"]
+# numerical_features = ["precip_mm", "humidity", "temp_c", "heatindex_c", 
+#                      "wind_kph", "cloud", "uv", "dewpoint_c", "is_day", 
+#                      "umur", "umur_max"]
+# categorical_features = ["jenis_benih"]
+
+from useModel import flask_predict
 
 @app.route('/predict', methods=['POST'])
 def predict():
@@ -672,28 +674,16 @@ def predict():
         # Ambil data dari request
         data = request.json
         
-        # Konversi ke DataFrame
-        input_data = pd.DataFrame([data])
+        # Panggil Model AI
+        result = flask_predict(data)
         
-        # Preprocessing
-        num_data = scaler.transform(input_data[numerical_features])
-        cat_data = encoder.transform(input_data[categorical_features])
-        
-        # Gabungkan fitur
-        processed_data = np.concatenate([cat_data, num_data], axis=1)
-        
-        # Prediksi
-        prediction = model.predict(processed_data)
-        proba = model.predict_proba(processed_data)
-        
-        # Return hasil
-        return jsonify({
-            'prediction': int(prediction[0]),
-            'probability': float(proba[0][1]),
-            'status': 'success'
-        })
+        return jsonify(result)
     except Exception as e:
-        return jsonify({'error': str(e), 'status': 'failed'})
+        return jsonify({
+            'success': False,
+            'error': f'Server error: {str(e)}',
+            'data': None
+        }), 500
 
 if __name__ == '__main__':
     app.run(debug=True)

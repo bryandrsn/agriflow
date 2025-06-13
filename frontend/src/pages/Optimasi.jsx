@@ -8,31 +8,41 @@ import {
   Card,
   Spinner,
   Alert,
+  Table,
   Badge,
-  ProgressBar,
-  ListGroup,
+  Accordion
 } from "react-bootstrap";
 import DashboardNavbar from "../components/DashboardNavbar";
 import Footer from "../components/Footer";
-import { FaSeedling, FaChartLine, FaLeaf, FaTint, FaSun } from "react-icons/fa";
+import { 
+  FaSeedling, 
+  FaChartLine, 
+  FaLeaf, 
+  FaHistory, 
+  FaSun, 
+  FaCalendarAlt,
+  FaTint,
+  FaCloud,
+  FaCloudSun
+} from "react-icons/fa";
+import { IoWaterSharp } from "react-icons/io5";
+import { GoAlertFill } from "react-icons/go";
 
 const Optimasi = () => {
   const [formData, setFormData] = useState({
-    seedType: "",
-    plantAge: "",
-    soilMoisture: "",
-    sunlightExposure: "",
+    jenisTanaman: "",
+    umurTanaman: "",
+    umurTanamanMax: "",
+    days: 7,
   });
-  const [prediction, setPrediction] = useState(null);
+  const [predictions, setPredictions] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [activeDay, setActiveDay] = useState("0");
 
-  const seedTypes = [
-    { value: "Padi IR64", icon: <FaSeedling className="me-2" /> },
-    { value: "Jagung Hibrida", icon: <FaLeaf className="me-2" /> },
-    { value: "Kedelai Grobogan", icon: <FaSeedling className="me-2" /> },
-    { value: "Cabai Keriting", icon: <FaLeaf className="me-2" /> },
-    { value: "Tomat Permata", icon: <FaLeaf className="me-2" /> },
+  const jenis = [
+    { value: "Padi" },
+    { value: "Jagung" },
   ];
 
   const handleChange = (e) => {
@@ -43,154 +53,153 @@ const Optimasi = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setPredictions(null);
 
-    if (!formData.seedType || !formData.plantAge) {
-      setError("Harap isi semua field yang wajib");
+    if (!formData.jenisTanaman || !formData.umurTanaman || !formData.umurTanamanMax) {
+      setError("Harap isi semua field yang wajib!");
+      return;
+    }
+
+    const umur = parseInt(formData.umurTanaman);
+    const umurMax = parseInt(formData.umurTanamanMax);
+
+    if (umur > umurMax) {
+      setError("Usia tanaman tidak boleh lebih besar dari usia panen!");
       return;
     }
 
     setIsLoading(true);
 
-    // Simulasi API call
-    setTimeout(() => {
-      try {
-        const dummyPredictions = [
-          {
-            status: "Optimal",
-            message: "Tanaman dalam kondisi sangat baik",
-            score: 95,
-            color: "success",
-          },
-          {
-            status: "Perlu Perawatan",
-            message: "Tanaman membutuhkan nutrisi tambahan",
-            score: 65,
-            color: "warning",
-          },
-          {
-            status: "Kritis",
-            message: "Segera lakukan tindakan perbaikan",
-            score: 30,
-            color: "danger",
-          },
-        ];
+    try {
+      const response = await fetch("http://localhost:5000/predict", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          jenis_benih: formData.jenisTanaman.toLowerCase(),
+          umur: umur,
+          umur_max: umurMax,
+          days: formData.days,
+        }),
+      });
 
-        const randomPrediction =
-          dummyPredictions[Math.floor(Math.random() * dummyPredictions.length)];
-
-        setPrediction({
-          ...formData,
-          ...randomPrediction,
-          recommendation: generateRecommendation(
-            formData.seedType,
-            randomPrediction.status
-          ),
-          optimalConditions: generateOptimalConditions(formData.seedType),
-        });
-        setIsLoading(false);
-      } catch (err) {
-        setError("Gagal melakukan prediksi. Silakan coba lagi." + err);
-        setIsLoading(false);
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || "Gagal melakukan prediksi");
       }
-    }, 2000);
+
+      setPredictions({
+        jenisTanaman: formData.jenisTanaman,
+        umurTanaman: formData.umurTanaman,
+        umurTanamanMax: formData.umurTanamanMax,
+        prediksi: data.data.predictions,
+        kondisiCuaca: data.data.weather_conditions,
+        days: formData.days
+      });
+      setActiveDay("0"); // Set first day as active by default
+    } catch (error) {
+      setError("Terjadi kesalahan: " + error.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const generateRecommendation = (seedType, status) => {
-    const recommendations = {
-      "Padi IR64": {
-        Optimal: [
-          "Lanjutkan perawatan rutin",
-          "Pantau kadar air sawah secara berkala",
-          "Pupuk tambahan 50kg/ha minggu depan",
-        ],
-        "Perlu Perawatan": [
-          "Berikan pupuk NPK dengan dosis 250kg/ha",
-          "Tingkatkan pengairan 20%",
-          "Periksa kemungkinan hama",
-        ],
-        Kritis: [
-          "Aplikasikan pestisida organik segera",
-          "Tingkatkan frekuensi pemantauan",
-          "Konsultasikan dengan ahli pertanian",
-        ],
-      },
-      "Jagung Hibrida": {
-        Optimal: [
-          "Lanjutkan program pemupukan rutin",
-          "Siram sesuai jadwal",
-          "Pantau pertumbuhan mingguan",
-        ],
-        "Perlu Perawatan": [
-          "Tambahkan pupuk urea 100kg/ha",
-          "Tingkatkan penyiraman",
-          "Berikan pupuk daun",
-        ],
-        Kritis: [
-          "Lakukan penyemprotan fungisida",
-          "Evaluasi sistem drainase",
-          "Potong daun yang terinfeksi",
-        ],
-      },
-      // ... tambahkan untuk jenis tanaman lainnya
-    };
-
-    return (
-      recommendations[seedType]?.[status] || [
-        "Tidak ada rekomendasi spesifik tersedia.",
-        "Periksa kondisi tanaman secara berkala.",
-      ]
-    );
+  const categorizeWeather = (condition) => {
+    const lowerCondition = condition.toLowerCase();
+    
+    // Rain conditions
+    const rainKeywords = [
+      'rain', 'shower', 'drizzle', 'torrential', 'patchy rain possible',
+      'thundery outbreaks possible', 'freezing drizzle', 'light rain', 
+      'moderate rain', 'heavy rain', 'showers'
+    ];
+    
+    // Cloudy conditions
+    const cloudyKeywords = [
+      'cloudy', 'overcast', 'partly cloudy', 'mist', 'fog', 'freezing fog'
+    ];
+    
+    if (rainKeywords.some(keyword => lowerCondition.includes(keyword))) {
+      return { 
+        category: "Hujan",
+        icon: <IoWaterSharp className="text-primary" />,
+        color: "primary"
+      };
+    } else if (cloudyKeywords.some(keyword => lowerCondition.includes(keyword))) {
+      return { 
+        category: "Mendung/Berawan",
+        icon: <FaCloud className="text-secondary" />,
+        color: "secondary"
+      };
+    } else if (lowerCondition.includes('sunny') || 
+               lowerCondition.includes('clear') || 
+               lowerCondition.includes('mainly clear')) {
+      return { 
+        category: "Cerah",
+        icon: <FaSun className="text-warning" />,
+        color: "warning"
+      };
+    } else {
+      return { 
+        category: condition,
+        icon: <GoAlertFill className="text-muted" />,
+        color: "muted"
+      };
+    }
   };
 
-  const generateOptimalConditions = (seedType) => {
-    const conditions = {
-      "Padi IR64": [
-        { name: "Suhu Optimal", value: "28-32°C", icon: <FaSun /> },
-        { name: "Kelembaban Tanah", value: "80-90%", icon: <FaTint /> },
-        { name: "pH Tanah", value: "5.0-7.0", icon: <FaLeaf /> },
-      ],
-      "Jagung Hibrida": [
-        { name: "Suhu Optimal", value: "24-30°C", icon: <FaSun /> },
-        { name: "Kelembaban Tanah", value: "70-80%", icon: <FaTint /> },
-        { name: "pH Tanah", value: "6.0-7.5", icon: <FaLeaf /> },
-      ],
-      // ... tambahkan untuk jenis tanaman lainnya
-    };
-
-    return conditions[seedType] || [];
+  // Group predictions by day (24 hours per day)
+  const groupByDay = () => {
+    if (!predictions) return [];
+    
+    const days = [];
+    const hoursPerDay = 24;
+    const totalHours = predictions.days * hoursPerDay;
+    
+    for (let day = 0; day < predictions.days; day++) {
+      const startIdx = day * hoursPerDay;
+      const endIdx = Math.min(startIdx + hoursPerDay, totalHours);
+      
+      days.push({
+        dayNumber: day + 1,
+        hours: Array.from({ length: endIdx - startIdx }, (_, i) => ({
+          hour: i,
+          prediction: predictions.prediksi[startIdx + i],
+          weather: predictions.kondisiCuaca[startIdx + i]
+        }))
+      });
+    }
+    
+    return days;
   };
+
+  const dailyPredictions = groupByDay();
 
   return (
     <>
       <DashboardNavbar role="admin" />
-
       <Container fluid className="px-0">
-        {/* Hero Section */}
         <div className="bg-success bg-opacity-10 py-5">
           <Container className="text-center py-4">
+            <FaChartLine size={50} className="mb-3 text-success" />
             <h1 className="display-5 fw-bold text-success mb-3">
-              <FaChartLine className="me-2" />
-              Optimasi Proses Pertanian
+              Optimasi Irigasi
             </h1>
-            <p
-              className="lead text-muted mx-auto"
-              style={{ maxWidth: "700px" }}
-            >
-              Dapatkan analisis cerdas dan rekomendasi berbasis data untuk
+            <p className="lead text-muted mx-auto" style={{ maxWidth: "700px" }}>
+              Dapatkan analisis cerdas dan rekomendasi irigasi berbasis data cuaca untuk
               meningkatkan hasil panen Anda
             </p>
           </Container>
         </div>
 
-        {/* Main Content */}
         <Container className="my-5">
           <Row className="justify-content-center">
             <Col xl={10}>
               <Row className="g-4">
-                {/* Form Column */}
                 <Col lg={5}>
                   <Card className="border-0 shadow-sm h-100">
                     <Card.Header className="bg-white border-0 py-3">
@@ -212,17 +221,17 @@ const Optimasi = () => {
                             Jenis Tanaman
                           </Form.Label>
                           <Form.Select
-                            name="seedType"
-                            value={formData.seedType}
+                            name="jenisTanaman"
+                            value={formData.jenisTanaman}
                             onChange={handleChange}
-                            required
                             size="lg"
                             className="rounded-3"
+                            required
                           >
                             <option value="">Pilih Jenis Tanaman</option>
-                            {seedTypes.map((type, index) => (
-                              <option key={index} value={type.value}>
-                                {type.icon} {type.value}
+                            {jenis.map((jenis_pilihan, index) => (
+                              <option key={index} value={jenis_pilihan.value}>
+                                {jenis_pilihan.value}
                               </option>
                             ))}
                           </Form.Select>
@@ -234,48 +243,48 @@ const Optimasi = () => {
                           </Form.Label>
                           <Form.Control
                             type="number"
-                            name="plantAge"
-                            value={formData.plantAge}
+                            name="umurTanaman"
+                            value={formData.umurTanaman}
                             onChange={handleChange}
                             min="1"
                             max="365"
-                            required
                             size="lg"
                             placeholder="Masukkan umur tanaman"
                             className="rounded-3"
+                            required
                           />
                         </Form.Group>
 
                         <Form.Group className="mb-3">
                           <Form.Label className="fw-semibold">
-                            Kelembaban Tanah (%)
+                            Perkiraan Umur Panen (hari)
                           </Form.Label>
                           <Form.Control
                             type="number"
-                            name="soilMoisture"
-                            value={formData.soilMoisture}
+                            name="umurTanamanMax"
+                            value={formData.umurTanamanMax}
                             onChange={handleChange}
-                            min="0"
-                            max="100"
+                            min="1"
+                            max="365"
                             size="lg"
-                            placeholder="Opsional"
+                            placeholder="Masukkan umur panen"
                             className="rounded-3"
+                            required
                           />
                         </Form.Group>
 
-                        <Form.Group className="mb-4">
+                        <Form.Group className="mb-3">
                           <Form.Label className="fw-semibold">
-                            Paparan Sinar Matahari (jam/hari)
+                            Jumlah Hari Prediksi
                           </Form.Label>
                           <Form.Control
                             type="number"
-                            name="sunlightExposure"
-                            value={formData.sunlightExposure}
+                            name="days"
+                            value={formData.days}
                             onChange={handleChange}
-                            min="0"
-                            max="24"
+                            min="1"
+                            max="14"
                             size="lg"
-                            placeholder="Opsional"
                             className="rounded-3"
                           />
                         </Form.Group>
@@ -285,7 +294,7 @@ const Optimasi = () => {
                           type="submit"
                           disabled={isLoading}
                           size="lg"
-                          className="w-100 rounded-pill py-3 fw-semibold"
+                          className="w-100 rounded-pill fw-semibold mb-3"
                         >
                           {isLoading ? (
                             <>
@@ -300,17 +309,25 @@ const Optimasi = () => {
                             </>
                           ) : (
                             <>
-                              <FaChartLine className="me-2" />
+                              <FaChartLine className="me-3" />
                               Mulai Analisis
                             </>
                           )}
                         </Button>
+
+                        {/* <Button
+                          variant="outline-success"
+                          size="lg"
+                          className="w-100 rounded-pill fw-semibold"
+                        >
+                          <FaHistory className="me-3" />
+                          Riwayat Optimasi
+                        </Button> */}
                       </Form>
                     </Card.Body>
                   </Card>
                 </Col>
 
-                {/* Results Column */}
                 <Col lg={7}>
                   {isLoading ? (
                     <Card className="border-0 shadow-sm h-100">
@@ -320,153 +337,132 @@ const Optimasi = () => {
                           Menganalisis data tanaman...
                         </h5>
                         <p className="text-center text-muted">
-                          Sistem sedang memproses data Anda untuk memberikan
-                          rekomendasi terbaik
+                          Sistem sedang memproses data tanaman Anda untuk memberikan
+                          prediksi terbaik
                         </p>
                       </Card.Body>
                     </Card>
-                  ) : prediction ? (
+                  ) : predictions ? (
                     <>
-                      <Card className="border-0 shadow-sm mb-4">
-                        <Card.Header
-                          className={`bg-${prediction.color} bg-opacity-10 text-${prediction.color} py-3`}
-                        >
+                      <Card className="shadow mb-4 text-success">
+                        <Card.Header className="bg-success bg-opacity-10 text-success py-3">
                           <h5 className="mb-0 fw-semibold">
-                            <FaChartLine className="me-2" />
-                            Hasil Analisis
+                            <FaSeedling className="me-2" />
+                            Informasi Tanaman
                           </h5>
                         </Card.Header>
                         <Card.Body>
-                          <Row className="mb-4">
-                            <Col md={6}>
-                              <div className="d-flex align-items-center mb-3">
+                          <Row>
+                            <Col md={6} className="mb-3">
+                              <div className="d-flex align-items-center">
                                 <div className="bg-success bg-opacity-10 p-2 rounded me-3">
                                   <FaSeedling className="text-success fs-4" />
                                 </div>
                                 <div>
-                                  <p className="mb-0 text-muted small">
-                                    Jenis Tanaman
-                                  </p>
-                                  <p className="mb-0 fw-semibold">
-                                    {prediction.seedType}
-                                  </p>
+                                  <p className="mb-0 text-muted small">Jenis Tanaman</p>
+                                  <p className="mb-0 fw-semibold">{predictions.jenisTanaman}</p>
                                 </div>
                               </div>
                             </Col>
-                            <Col md={6}>
-                              <div className="d-flex align-items-center mb-3">
+                            <Col md={6} className="mb-3">
+                              <div className="d-flex align-items-center">
                                 <div className="bg-success bg-opacity-10 p-2 rounded me-3">
                                   <FaLeaf className="text-success fs-4" />
                                 </div>
                                 <div>
-                                  <p className="mb-0 text-muted small">
-                                    Umur Tanaman
-                                  </p>
-                                  <p className="mb-0 fw-semibold">
-                                    {prediction.plantAge} hari
-                                  </p>
+                                  <p className="mb-0 text-muted small">Umur Tanaman</p>
+                                  <p className="mb-0 fw-semibold">{predictions.umurTanaman} hari</p>
+                                </div>
+                              </div>
+                            </Col>
+                            <Col md={6} className="mb-3">
+                              <div className="d-flex align-items-center">
+                                <div className="bg-success bg-opacity-10 p-2 rounded me-3">
+                                  <FaCalendarAlt className="text-success fs-4" />
+                                </div>
+                                <div>
+                                  <p className="mb-0 text-muted small">Umur Panen</p>
+                                  <p className="mb-0 fw-semibold">{predictions.umurTanamanMax} hari</p>
+                                </div>
+                              </div>
+                            </Col>
+                            <Col md={6} className="mb-3">
+                              <div className="d-flex align-items-center">
+                                <div className="bg-success bg-opacity-10 p-2 rounded me-3">
+                                  <FaSun className="text-success fs-4" />
+                                </div>
+                                <div>
+                                  <p className="mb-0 text-muted small">Periode Prediksi</p>
+                                  <p className="mb-0 fw-semibold">{predictions.days} hari ({predictions.days * 24} jam)</p>
                                 </div>
                               </div>
                             </Col>
                           </Row>
-
-                          <div className="mb-4">
-                            <h6 className="fw-semibold mb-3">Status Tanaman</h6>
-                            <Alert
-                              variant={prediction.color}
-                              className="d-flex align-items-center"
-                            >
-                              <div className="me-3">
-                                {prediction.color === "success" && (
-                                  <FaSeedling className="fs-3" />
-                                )}
-                                {prediction.color === "warning" && (
-                                  <FaLeaf className="fs-3" />
-                                )}
-                                {prediction.color === "danger" && (
-                                  <FaLeaf className="fs-3" />
-                                )}
-                              </div>
-                              <div>
-                                <h5 className="alert-heading mb-1">
-                                  {prediction.status}
-                                </h5>
-                                <p className="mb-0">{prediction.message}</p>
-                              </div>
-                            </Alert>
-                          </div>
-
-                          <div className="mb-4">
-                            <h6 className="fw-semibold mb-3">Skor Kesehatan</h6>
-                            <div className="d-flex align-items-center">
-                              <ProgressBar
-                                now={prediction.score}
-                                variant={prediction.color}
-                                className="flex-grow-1 me-3"
-                                style={{ height: "10px" }}
-                                label={`${prediction.score}%`}
-                              />
-                              <Badge bg={prediction.color} className="fs-6">
-                                {prediction.score}/100
-                              </Badge>
-                            </div>
-                          </div>
                         </Card.Body>
                       </Card>
 
-                      <Card className="border-0 shadow-sm mb-4">
-                        <Card.Header className="bg-white border-0 py-3">
-                          <h5 className="mb-0 fw-semibold text-success">
-                            <FaLeaf className="me-2" />
-                            Rekomendasi
+                      <Card className="shadow text-success">
+                        <Card.Header className="bg-success bg-opacity-10 text-success py-3">
+                          <h5 className="mb-0 fw-semibold">
+                            <FaChartLine className="me-2" />
+                            Hasil Prediksi Irigasi (Per Jam)
                           </h5>
                         </Card.Header>
                         <Card.Body>
-                          <ListGroup variant="flush">
-                            {prediction.recommendation.map((item, index) => (
-                              <ListGroup.Item
-                                key={index}
-                                className="d-flex align-items-start py-3"
+                          <Accordion activeKey={activeDay} onSelect={(e) => setActiveDay(e)}>
+                            {dailyPredictions.map((dayData) => (
+                              <Accordion.Item 
+                                key={dayData.dayNumber} 
+                                eventKey={String(dayData.dayNumber - 1)}
+                                className="mb-2 border-0"
                               >
-                                <Badge bg="success" className="me-3 mt-1">
-                                  {index + 1}
-                                </Badge>
-                                <span>{item}</span>
-                              </ListGroup.Item>
+                                <Accordion.Header className="bg-light rounded">
+                                  <div className="d-flex align-items-center">
+                                    <FaCalendarAlt className="me-2 text-success" />
+                                    <span className="fw-semibold">Hari ke-{dayData.dayNumber}</span>
+                                  </div>
+                                </Accordion.Header>
+                                <Accordion.Body className="p-0">
+                                  <div className="table-responsive" style={{ maxHeight: "300px" }}>
+                                    <Table striped bordered hover className="mb-0">
+                                      <thead>
+                                        <tr>
+                                          <th>Jam</th>
+                                          <th>Status Irigasi</th>
+                                          <th>Kondisi Cuaca</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        {dayData.hours.map((hourData, hourIdx) => {
+                                          const weatherInfo = categorizeWeather(hourData.weather);
+                                          return (
+                                            <tr key={hourIdx}>
+                                              <td>{hourData.hour}:00</td>
+                                              <td>
+                                                {hourData.prediction === 1 ? (
+                                                  <Badge bg="success">Perlu Irigasi</Badge>
+                                                ) : (
+                                                  <Badge bg="secondary">Tidak Perlu</Badge>
+                                                )}
+                                              </td>
+                                              <td>
+                                                <div className="d-flex align-items-center">
+                                                  {weatherInfo.icon}
+                                                  <span className="ms-2">{weatherInfo.category}</span>
+                                                </div>
+                                              </td>
+                                            </tr>
+                                          );
+                                        })}
+                                      </tbody>
+                                    </Table>
+                                  </div>
+                                </Accordion.Body>
+                              </Accordion.Item>
                             ))}
-                          </ListGroup>
+                          </Accordion>
                         </Card.Body>
                       </Card>
-
-                      {prediction.optimalConditions.length > 0 && (
-                        <Card className="border-0 shadow-sm">
-                          <Card.Header className="bg-white border-0 py-3">
-                            <h5 className="mb-0 fw-semibold text-success">
-                              <FaSun className="me-2" />
-                              Kondisi Optimal untuk {prediction.seedType}
-                            </h5>
-                          </Card.Header>
-                          <Card.Body>
-                            <Row>
-                              {prediction.optimalConditions.map(
-                                (condition, index) => (
-                                  <Col md={4} key={index} className="mb-3">
-                                    <div className="bg-light p-3 rounded text-center h-100">
-                                      <div className="text-success mb-2">
-                                        {condition.icon}
-                                      </div>
-                                      <h6 className="fw-semibold mb-1">
-                                        {condition.name}
-                                      </h6>
-                                      <p className="mb-0">{condition.value}</p>
-                                    </div>
-                                  </Col>
-                                )
-                              )}
-                            </Row>
-                          </Card.Body>
-                        </Card>
-                      )}
                     </>
                   ) : (
                     <Card className="border-0 shadow-sm h-100">
@@ -474,21 +470,13 @@ const Optimasi = () => {
                         <div className="bg-success bg-opacity-10 p-4 rounded-circle mb-4">
                           <FaChartLine className="text-success fs-1" />
                         </div>
-                        <h5 className="fw-semibold">
+                        <h4 className="fw-semibold">
                           Mulai Analisis Tanaman Anda
-                        </h5>
+                        </h4>
                         <p className="text-muted mb-4">
                           Masukkan data tanaman untuk mendapatkan rekomendasi
                           optimasi terbaik
                         </p>
-                        <Button
-                          variant="outline-success"
-                          size="lg"
-                          className="rounded-pill"
-                        >
-                          <FaSeedling className="me-2" />
-                          Petunjuk Penggunaan
-                        </Button>
                       </Card.Body>
                     </Card>
                   )}
@@ -499,7 +487,7 @@ const Optimasi = () => {
         </Container>
       </Container>
 
-      <Footer />
+      <Footer role="admin"/>
     </>
   );
 };
