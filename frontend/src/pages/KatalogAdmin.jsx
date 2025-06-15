@@ -7,6 +7,7 @@ import {
   Card,
   CloseButton,
   Alert,
+  Badge,
 } from "react-bootstrap";
 import { FaEdit, FaPlus, FaMinus } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
@@ -64,7 +65,9 @@ const KatalogAdmin = () => {
                 <Card.Body className="d-flex flex-column justify-content-between">
                   <div>
                     <Card.Title>{katalog.varietas}</Card.Title>
-                    <Card.Text>{katalog.jenis_benih}</Card.Text>
+                    <Badge bg="secondary" className="me-1">
+                      {katalog.jenis_benih}
+                    </Badge>
                   </div>
                   <div className="d-flex mt-3">
                     <Button
@@ -147,7 +150,7 @@ const KatalogAdmin = () => {
           </div>
         )}
       </div>
-      <Footer role="admin"/>
+      <Footer role="admin" />
     </div>
   );
 };

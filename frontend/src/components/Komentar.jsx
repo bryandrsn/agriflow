@@ -168,7 +168,6 @@ const Komentar = ({ benih_id, isAdmin = false }) => {
     <Container className="bg-white shadow my-5 p-4 col-12 col-md-10 col-lg-8 mx-auto">
       <h2 className="display-6 fw-semibold fs-3">Komentar</h2>
 
-      {/* Form komentar utama - tersedia untuk semua */}
       <Form method="POST" onSubmit={handleAddComment} className="mb-2">
         <Form.Control
           as="textarea"
@@ -222,10 +221,10 @@ const Komentar = ({ benih_id, isAdmin = false }) => {
       ) : (
         mainComments.map((comment) => (
           <div key={`main-${comment.id}`}>
-            <Card className="mt-3" style={{ border: "2px solid #628B35" }}>
+            <Card className="mt-3" style={{ border: "2px solid #388E3C" }}>
               <Card.Body>
                 <Card.Title>
-                  <FaUserCircle color="#628B35" size={40} className="me-2" />
+                  <FaUserCircle color="#388E3C" size={40} className="me-2" />
                   {comment.username}
                   <p className="float-end text-muted fs-6 fw-light">
                     {formatWIB(comment.updated_at)}
@@ -263,7 +262,6 @@ const Komentar = ({ benih_id, isAdmin = false }) => {
                     <Card.Text>{comment.content}</Card.Text>
                     {showFormById !== comment.id ? (
                       <>
-                        {/* Tombol Balas - tersedia untuk semua */}
                         <Button
                           size="sm"
                           variant="outline-secondary"
@@ -280,14 +278,12 @@ const Komentar = ({ benih_id, isAdmin = false }) => {
                           Balas Komentar
                         </Button>
 
-                        {/* Tombol Edit/Hapus */}
                         <div className="float-end d-flex gap-3">
-                          {/* Tombol Edit - hanya untuk pemilik komentar */}
                           {canEditComment(comment) && (
                             <Button
                               variant="transparent"
                               style={{
-                                color: "#628B35",
+                                color: "#388E3C",
                                 border: "none",
                                 padding: 0,
                                 display: "inline-flex",
@@ -296,17 +292,16 @@ const Komentar = ({ benih_id, isAdmin = false }) => {
                               }}
                               onClick={() => handleEditComment(comment)}
                             >
-                              <MdEdit color="#628B35" className="me-1" />
+                              <MdEdit color="#388E3C" className="me-1" />
                               Edit
                             </Button>
                           )}
 
-                          {/* Tombol Hapus - untuk admin atau pemilik */}
                           {canDeleteComment(comment) && (
                             <Button
                               variant="transparent"
                               style={{
-                                color: "#628B35",
+                                color: "#388E3C",
                                 border: "none",
                                 padding: 0,
                                 display: "inline-flex",
@@ -316,7 +311,7 @@ const Komentar = ({ benih_id, isAdmin = false }) => {
                               onClick={() => handleDeleteComment(comment.id)}
                             >
                               <MdDeleteForever
-                                color="#628B35"
+                                color="#388E3C"
                                 className="me-1"
                               />
                               Hapus
@@ -325,7 +320,6 @@ const Komentar = ({ benih_id, isAdmin = false }) => {
                         </div>
                       </>
                     ) : (
-                      /* Form Balasan - tersedia untuk semua */
                       <Form
                         method="POST"
                         onSubmit={handleAddComment}
@@ -369,7 +363,6 @@ const Komentar = ({ benih_id, isAdmin = false }) => {
               </Card.Body>
             </Card>
 
-            {/* Bagian Balasan Komentar */}
             {replies
               .filter((reply) => reply.parent_id === comment.id)
               .map((reply) => (
@@ -377,14 +370,14 @@ const Komentar = ({ benih_id, isAdmin = false }) => {
                   key={`reply-${reply.id}`}
                   className="mt-2 ms-5"
                   style={{
-                    border: "2px solid #628B35",
-                    borderLeft: "4px solid #628B35",
+                    border: "2px solid #388E3C",
+                    borderLeft: "4px solid #388E3C",
                   }}
                 >
                   <Card.Body>
                     <Card.Subtitle className="mb-2">
                       <FaUserCircle
-                        color="#628B35"
+                        color="#388E3C"
                         size={30}
                         className="me-2"
                       />
@@ -428,7 +421,6 @@ const Komentar = ({ benih_id, isAdmin = false }) => {
                         <Card.Text>{reply.content}</Card.Text>
                         {showFormById !== reply.id ? (
                           <>
-                            {/* Tombol Balas - tersedia untuk semua */}
                             <Button
                               size="sm"
                               variant="outline-secondary"
@@ -445,14 +437,12 @@ const Komentar = ({ benih_id, isAdmin = false }) => {
                               Balas Komentar
                             </Button>
 
-                            {/* Tombol Edit/Hapus */}
                             <div className="float-end d-flex gap-3">
-                              {/* Tombol Edit - hanya untuk pemilik balasan */}
                               {canEditComment(reply) && (
                                 <Button
                                   variant="transparent"
                                   style={{
-                                    color: "#628B35",
+                                    color: "#388E3C",
                                     border: "none",
                                     padding: 0,
                                     display: "inline-flex",
@@ -461,17 +451,16 @@ const Komentar = ({ benih_id, isAdmin = false }) => {
                                   }}
                                   onClick={() => handleEditComment(reply)}
                                 >
-                                  <MdEdit color="#628B35" className="me-1" />
+                                  <MdEdit color="#388E3C" className="me-1" />
                                   Edit
                                 </Button>
                               )}
 
-                              {/* Tombol Hapus - untuk admin atau pemilik */}
                               {canDeleteComment(reply) && (
                                 <Button
                                   variant="transparent"
                                   style={{
-                                    color: "#628B35",
+                                    color: "#388E3C",
                                     border: "none",
                                     padding: 0,
                                     display: "inline-flex",
@@ -481,7 +470,7 @@ const Komentar = ({ benih_id, isAdmin = false }) => {
                                   onClick={() => handleDeleteComment(reply.id)}
                                 >
                                   <MdDeleteForever
-                                    color="#628B35"
+                                    color="#388E3C"
                                     className="me-1"
                                   />
                                   Hapus
@@ -490,7 +479,6 @@ const Komentar = ({ benih_id, isAdmin = false }) => {
                             </div>
                           </>
                         ) : (
-                          /* Form Balasan - tersedia untuk semua */
                           <Form
                             method="POST"
                             onSubmit={handleAddComment}

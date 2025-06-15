@@ -10,20 +10,20 @@ import {
   Alert,
   Table,
   Badge,
-  Accordion
+  Accordion,
 } from "react-bootstrap";
 import DashboardNavbar from "../components/DashboardNavbar";
 import Footer from "../components/Footer";
-import { 
-  FaSeedling, 
-  FaChartLine, 
-  FaLeaf, 
-  FaHistory, 
-  FaSun, 
+import {
+  FaSeedling,
+  FaChartLine,
+  FaLeaf,
+  FaHistory,
+  FaSun,
   FaCalendarAlt,
   FaTint,
   FaCloud,
-  FaCloudSun
+  FaCloudSun,
 } from "react-icons/fa";
 import { IoWaterSharp } from "react-icons/io5";
 import { GoAlertFill } from "react-icons/go";
@@ -40,10 +40,7 @@ const Optimasi = () => {
   const [error, setError] = useState("");
   const [activeDay, setActiveDay] = useState("0");
 
-  const jenis = [
-    { value: "Padi" },
-    { value: "Jagung" },
-  ];
+  const jenis = [{ value: "Padi" }, { value: "Jagung" }];
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -58,7 +55,11 @@ const Optimasi = () => {
     setError("");
     setPredictions(null);
 
-    if (!formData.jenisTanaman || !formData.umurTanaman || !formData.umurTanamanMax) {
+    if (
+      !formData.jenisTanaman ||
+      !formData.umurTanaman ||
+      !formData.umurTanamanMax
+    ) {
       setError("Harap isi semua field yang wajib!");
       return;
     }
@@ -87,9 +88,41 @@ const Optimasi = () => {
       });
 
       const data = await response.json();
-      
+
       if (!response.ok) {
         throw new Error(data.error || "Gagal melakukan prediksi");
+      }
+
+      // Validasi struktur data sebelum mengakses properti
+      if (!data || !data.data) {
+        throw new Error("Response data tidak valid - data kosong");
+      }
+
+      if (!data.data.predictions || !data.data.weather_conditions) {
+        throw new Error(
+          "Response data tidak lengkap - predictions atau weather_conditions tidak ada"
+        );
+      }
+
+      // Validasi apakah predictions dan weather_conditions adalah array
+      if (
+        !Array.isArray(data.data.predictions) ||
+        !Array.isArray(data.data.weather_conditions)
+      ) {
+        throw new Error(
+          "Format data predictions atau weather_conditions tidak valid"
+        );
+      }
+
+      // Validasi panjang array sesuai dengan ekspektasi
+      const expectedLength = formData.days * 24;
+      if (
+        data.data.predictions.length !== expectedLength ||
+        data.data.weather_conditions.length !== expectedLength
+      ) {
+        console.warn(
+          `Panjang data tidak sesuai. Expected: ${expectedLength}, Got: predictions=${data.data.predictions.length}, weather=${data.data.weather_conditions.length}`
+        );
       }
 
       setPredictions({
@@ -98,9 +131,9 @@ const Optimasi = () => {
         umurTanamanMax: formData.umurTanamanMax,
         prediksi: data.data.predictions,
         kondisiCuaca: data.data.weather_conditions,
-        days: formData.days
+        days: formData.days,
       });
-      setActiveDay("0"); // Set first day as active by default
+      setActiveDay("0"); // Set default aktif hari pertama
     } catch (error) {
       setError("Terjadi kesalahan: " + error.message);
     } finally {
@@ -110,44 +143,61 @@ const Optimasi = () => {
 
   const categorizeWeather = (condition) => {
     const lowerCondition = condition.toLowerCase();
-    
+
     // Rain conditions
     const rainKeywords = [
-      'rain', 'shower', 'drizzle', 'torrential', 'patchy rain possible',
-      'thundery outbreaks possible', 'freezing drizzle', 'light rain', 
-      'moderate rain', 'heavy rain', 'showers'
+      "rain",
+      "shower",
+      "drizzle",
+      "torrential",
+      "patchy rain possible",
+      "thundery outbreaks possible",
+      "freezing drizzle",
+      "light rain",
+      "moderate rain",
+      "heavy rain",
+      "showers",
     ];
-    
+
     // Cloudy conditions
     const cloudyKeywords = [
-      'cloudy', 'overcast', 'partly cloudy', 'mist', 'fog', 'freezing fog'
+      "cloudy",
+      "overcast",
+      "partly cloudy",
+      "mist",
+      "fog",
+      "freezing fog",
     ];
-    
-    if (rainKeywords.some(keyword => lowerCondition.includes(keyword))) {
-      return { 
+
+    if (rainKeywords.some((keyword) => lowerCondition.includes(keyword))) {
+      return {
         category: "Hujan",
         icon: <IoWaterSharp className="text-primary" />,
-        color: "primary"
+        color: "primary",
       };
-    } else if (cloudyKeywords.some(keyword => lowerCondition.includes(keyword))) {
-      return { 
+    } else if (
+      cloudyKeywords.some((keyword) => lowerCondition.includes(keyword))
+    ) {
+      return {
         category: "Mendung/Berawan",
         icon: <FaCloud className="text-secondary" />,
-        color: "secondary"
+        color: "secondary",
       };
-    } else if (lowerCondition.includes('sunny') || 
-               lowerCondition.includes('clear') || 
-               lowerCondition.includes('mainly clear')) {
-      return { 
+    } else if (
+      lowerCondition.includes("sunny") ||
+      lowerCondition.includes("clear") ||
+      lowerCondition.includes("mainly clear")
+    ) {
+      return {
         category: "Cerah",
         icon: <FaSun className="text-warning" />,
-        color: "warning"
+        color: "warning",
       };
     } else {
-      return { 
+      return {
         category: condition,
         icon: <GoAlertFill className="text-muted" />,
-        color: "muted"
+        color: "muted",
       };
     }
   };
@@ -155,25 +205,25 @@ const Optimasi = () => {
   // Group predictions by day (24 hours per day)
   const groupByDay = () => {
     if (!predictions) return [];
-    
+
     const days = [];
     const hoursPerDay = 24;
     const totalHours = predictions.days * hoursPerDay;
-    
+
     for (let day = 0; day < predictions.days; day++) {
       const startIdx = day * hoursPerDay;
       const endIdx = Math.min(startIdx + hoursPerDay, totalHours);
-      
+
       days.push({
         dayNumber: day + 1,
         hours: Array.from({ length: endIdx - startIdx }, (_, i) => ({
           hour: i,
           prediction: predictions.prediksi[startIdx + i],
-          weather: predictions.kondisiCuaca[startIdx + i]
-        }))
+          weather: predictions.kondisiCuaca[startIdx + i],
+        })),
       });
     }
-    
+
     return days;
   };
 
@@ -189,9 +239,12 @@ const Optimasi = () => {
             <h1 className="display-5 fw-bold text-success mb-3">
               Optimasi Irigasi
             </h1>
-            <p className="lead text-muted mx-auto" style={{ maxWidth: "700px" }}>
-              Dapatkan analisis cerdas dan rekomendasi irigasi berbasis data cuaca untuk
-              meningkatkan hasil panen Anda
+            <p
+              className="lead text-muted mx-auto"
+              style={{ maxWidth: "700px" }}
+            >
+              Dapatkan analisis cerdas dan rekomendasi irigasi berbasis data
+              cuaca untuk meningkatkan hasil panen Anda
             </p>
           </Container>
         </div>
@@ -337,8 +390,8 @@ const Optimasi = () => {
                           Menganalisis data tanaman...
                         </h5>
                         <p className="text-center text-muted">
-                          Sistem sedang memproses data tanaman Anda untuk memberikan
-                          prediksi terbaik
+                          Sistem sedang memproses data tanaman Anda untuk
+                          memberikan prediksi terbaik
                         </p>
                       </Card.Body>
                     </Card>
@@ -359,8 +412,12 @@ const Optimasi = () => {
                                   <FaSeedling className="text-success fs-4" />
                                 </div>
                                 <div>
-                                  <p className="mb-0 text-muted small">Jenis Tanaman</p>
-                                  <p className="mb-0 fw-semibold">{predictions.jenisTanaman}</p>
+                                  <p className="mb-0 text-muted small">
+                                    Jenis Tanaman
+                                  </p>
+                                  <p className="mb-0 fw-semibold">
+                                    {predictions.jenisTanaman}
+                                  </p>
                                 </div>
                               </div>
                             </Col>
@@ -370,8 +427,12 @@ const Optimasi = () => {
                                   <FaLeaf className="text-success fs-4" />
                                 </div>
                                 <div>
-                                  <p className="mb-0 text-muted small">Umur Tanaman</p>
-                                  <p className="mb-0 fw-semibold">{predictions.umurTanaman} hari</p>
+                                  <p className="mb-0 text-muted small">
+                                    Umur Tanaman
+                                  </p>
+                                  <p className="mb-0 fw-semibold">
+                                    {predictions.umurTanaman} hari
+                                  </p>
                                 </div>
                               </div>
                             </Col>
@@ -381,8 +442,12 @@ const Optimasi = () => {
                                   <FaCalendarAlt className="text-success fs-4" />
                                 </div>
                                 <div>
-                                  <p className="mb-0 text-muted small">Umur Panen</p>
-                                  <p className="mb-0 fw-semibold">{predictions.umurTanamanMax} hari</p>
+                                  <p className="mb-0 text-muted small">
+                                    Umur Panen
+                                  </p>
+                                  <p className="mb-0 fw-semibold">
+                                    {predictions.umurTanamanMax} hari
+                                  </p>
                                 </div>
                               </div>
                             </Col>
@@ -392,8 +457,13 @@ const Optimasi = () => {
                                   <FaSun className="text-success fs-4" />
                                 </div>
                                 <div>
-                                  <p className="mb-0 text-muted small">Periode Prediksi</p>
-                                  <p className="mb-0 fw-semibold">{predictions.days} hari ({predictions.days * 24} jam)</p>
+                                  <p className="mb-0 text-muted small">
+                                    Periode Prediksi
+                                  </p>
+                                  <p className="mb-0 fw-semibold">
+                                    {predictions.days} hari (
+                                    {predictions.days * 24} jam)
+                                  </p>
                                 </div>
                               </div>
                             </Col>
@@ -409,22 +479,35 @@ const Optimasi = () => {
                           </h5>
                         </Card.Header>
                         <Card.Body>
-                          <Accordion activeKey={activeDay} onSelect={(e) => setActiveDay(e)}>
+                          <Accordion
+                            activeKey={activeDay}
+                            onSelect={(e) => setActiveDay(e)}
+                          >
                             {dailyPredictions.map((dayData) => (
-                              <Accordion.Item 
-                                key={dayData.dayNumber} 
+                              <Accordion.Item
+                                key={dayData.dayNumber}
                                 eventKey={String(dayData.dayNumber - 1)}
                                 className="mb-2 border-0"
                               >
                                 <Accordion.Header className="bg-light rounded">
                                   <div className="d-flex align-items-center">
                                     <FaCalendarAlt className="me-2 text-success" />
-                                    <span className="fw-semibold">Hari ke-{dayData.dayNumber}</span>
+                                    <span className="fw-semibold">
+                                      Hari ke-{dayData.dayNumber}
+                                    </span>
                                   </div>
                                 </Accordion.Header>
                                 <Accordion.Body className="p-0">
-                                  <div className="table-responsive" style={{ maxHeight: "300px" }}>
-                                    <Table striped bordered hover className="mb-0">
+                                  <div
+                                    className="table-responsive"
+                                    style={{ maxHeight: "300px" }}
+                                  >
+                                    <Table
+                                      striped
+                                      bordered
+                                      hover
+                                      className="mb-0"
+                                    >
                                       <thead>
                                         <tr>
                                           <th>Jam</th>
@@ -433,27 +516,38 @@ const Optimasi = () => {
                                         </tr>
                                       </thead>
                                       <tbody>
-                                        {dayData.hours.map((hourData, hourIdx) => {
-                                          const weatherInfo = categorizeWeather(hourData.weather);
-                                          return (
-                                            <tr key={hourIdx}>
-                                              <td>{hourData.hour}:00</td>
-                                              <td>
-                                                {hourData.prediction === 1 ? (
-                                                  <Badge bg="success">Perlu Irigasi</Badge>
-                                                ) : (
-                                                  <Badge bg="secondary">Tidak Perlu</Badge>
-                                                )}
-                                              </td>
-                                              <td>
-                                                <div className="d-flex align-items-center">
-                                                  {weatherInfo.icon}
-                                                  <span className="ms-2">{weatherInfo.category}</span>
-                                                </div>
-                                              </td>
-                                            </tr>
-                                          );
-                                        })}
+                                        {dayData.hours.map(
+                                          (hourData, hourIdx) => {
+                                            const weatherInfo =
+                                              categorizeWeather(
+                                                hourData.weather
+                                              );
+                                            return (
+                                              <tr key={hourIdx}>
+                                                <td>{hourData.hour}:00</td>
+                                                <td>
+                                                  {hourData.prediction === 1 ? (
+                                                    <Badge bg="success">
+                                                      Perlu Irigasi
+                                                    </Badge>
+                                                  ) : (
+                                                    <Badge bg="secondary">
+                                                      Tidak Perlu
+                                                    </Badge>
+                                                  )}
+                                                </td>
+                                                <td>
+                                                  <div className="d-flex align-items-center">
+                                                    {weatherInfo.icon}
+                                                    <span className="ms-2">
+                                                      {weatherInfo.category}
+                                                    </span>
+                                                  </div>
+                                                </td>
+                                              </tr>
+                                            );
+                                          }
+                                        )}
                                       </tbody>
                                     </Table>
                                   </div>
@@ -487,7 +581,7 @@ const Optimasi = () => {
         </Container>
       </Container>
 
-      <Footer role="admin"/>
+      <Footer role="admin" />
     </>
   );
 };

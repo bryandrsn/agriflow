@@ -146,7 +146,7 @@ def login():
         if cur:
             cur.close()
 
-
+# Cek login
 @app.route('/check-login', methods=['GET'])
 def check_login():
     if current_user.is_authenticated:
@@ -475,6 +475,7 @@ def check_wishlist(benih_id):
         if cur:
             cur.close()
 
+# Tambah benih ke wishlist
 @app.route('/add-wishlist', methods=['POST'])
 @login_required
 def add_wishlist():
@@ -500,6 +501,7 @@ def add_wishlist():
         if cur:
             cur.close()
 
+# Hapus benih dari wishlist
 @app.route('/remove-wishlist', methods=['DELETE'])
 @login_required
 def remove_wishlist():
@@ -525,6 +527,7 @@ def remove_wishlist():
         if cur:
             cur.close()
 
+# Ambil data komentar
 @app.route('/get-comments/<int:benih_id>', methods=['GET'])
 @login_required
 def get_comments(benih_id):
@@ -554,6 +557,7 @@ def get_comments(benih_id):
         if cur:
             cur.close()
 
+# Tambah komentar
 @app.route('/add-comment', methods=['POST'])
 @login_required
 def add_comment():
@@ -584,6 +588,7 @@ def add_comment():
         if cur:
             cur.close()
 
+# Edit komentar
 @app.route('/edit-comment', methods=['POST'])
 @login_required
 def edit_comment():
@@ -614,7 +619,7 @@ def edit_comment():
         if cur:
             cur.close()
 
-# SOLUSI ALTERNATIF YANG LEBIH SEDERHANA
+# Hapus komentar
 @app.route('/delete-comment', methods=['DELETE'])
 @login_required
 def remove_comment():
@@ -650,21 +655,6 @@ def remove_comment():
     finally:
         if cur:
             cur.close()
-
-
-# Penerapan AI
-# import joblib
-# import numpy as np
-# import pandas as pd
-
-# model = joblib.load('models/xgb_model.pkl')
-# scaler = joblib.load('models/scaler.pkl')
-# encoder = joblib.load('models/encoder.pkl')
-
-# numerical_features = ["precip_mm", "humidity", "temp_c", "heatindex_c", 
-#                      "wind_kph", "cloud", "uv", "dewpoint_c", "is_day", 
-#                      "umur", "umur_max"]
-# categorical_features = ["jenis_benih"]
 
 from useModel import flask_predict
 

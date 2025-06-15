@@ -29,9 +29,7 @@ const DashboardNavBar = ({ role }) => {
             <Nav.Link href="/katalog-admin">Katalog</Nav.Link>
           )}
           {role === "user" && <Nav.Link href="/wishlists">Wishlists</Nav.Link>}
-          {role === "admin" && (
-            <Nav.Link href="/optimasi">Optimasi Irigasi</Nav.Link>
-          )}
+          {role === "admin" && <Nav.Link href="/optimasi">Optimasi</Nav.Link>}
           <Nav.Link href="/profile">
             <FaUser
               className="rounded-circle ms-3"

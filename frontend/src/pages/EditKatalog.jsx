@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Container, Form, Button, Modal, Alert } from "react-bootstrap";
+import { Container, Form, Button, Modal, Alert, Image } from "react-bootstrap";
 import { useParams } from "react-router-dom";
 import DashboardNavBar from "../components/DashboardNavbar";
 import Footer from "../components/Footer";
@@ -155,7 +155,7 @@ const EditKatalog = () => {
         className="d-flex flex-column py-5 my-4 min-vh-100 shadow rounded-4"
         style={{ maxWidth: "1000px" }}
       >
-        <h1 className="ms-3">Edit Katalog</h1>
+        <h1 className="ms-3 display-6">Edit Katalog</h1>
         <hr className="border border-1 border-dark w-100" />
         <Form
           method="POST"
@@ -171,21 +171,28 @@ const EditKatalog = () => {
               placeholder="Masukkan Varietas"
               value={dataEdit.varietas}
               onChange={handleChange}
-              style={{ backgroundColor: "#D9D9D9", border: "none" }}
+              style={{ backgroundColor: "#E8E9EB", border: "none" }}
             />
           </Form.Group>
+
           <Form.Group controlId="jenis" className="mb-3">
             <Form.Label className="ms-2">Jenis Benih</Form.Label>
-            <Form.Control
-              className="rounded-4 px-4 py-2"
-              type="text"
+            <Form.Select
               name="jenis"
-              placeholder="Masukkan Jenis Benih"
               value={dataEdit.jenis}
               onChange={handleChange}
-              style={{ backgroundColor: "#D9D9D9", border: "none" }}
-            />
+              className="rounded-4 ps-4 px-4 py-2 text-muted"
+              style={{
+                backgroundColor: "#E8E9EB",
+                border: "none",
+              }}
+            >
+              <option value="">Pilih Jenis Benih</option>
+              <option value={"Padi"}>Padi</option>
+              <option value={"Jagung"}>Jagung</option>
+            </Form.Select>
           </Form.Group>
+
           <Form.Group controlId="umur" className="mb-3">
             <Form.Label className="ms-2">Umur (hari)</Form.Label>
             <Form.Control
@@ -195,9 +202,10 @@ const EditKatalog = () => {
               placeholder="Masukkan Umur"
               value={dataEdit.umur}
               onChange={handleChange}
-              style={{ backgroundColor: "#D9D9D9", border: "none" }}
+              style={{ backgroundColor: "#E8E9EB", border: "none" }}
             />
           </Form.Group>
+
           <Form.Group controlId="harga" className="mb-3">
             <Form.Label className="ms-2">Harga</Form.Label>
             <Form.Control
@@ -207,9 +215,10 @@ const EditKatalog = () => {
               placeholder="Masukkan Harga"
               value={dataEdit.harga}
               onChange={handleChange}
-              style={{ backgroundColor: "#D9D9D9", border: "none" }}
+              style={{ backgroundColor: "#E8E9EB", border: "none" }}
             />
           </Form.Group>
+
           <Form.Group controlId="stok" className="mb-3">
             <Form.Label className="ms-2">Stok</Form.Label>
             <Form.Control
@@ -219,9 +228,10 @@ const EditKatalog = () => {
               placeholder="Masukkan Jumlah Stok"
               value={dataEdit.stok}
               onChange={handleChange}
-              style={{ backgroundColor: "#D9D9D9", border: "none" }}
+              style={{ backgroundColor: "#E8E9EB", border: "none" }}
             />
           </Form.Group>
+
           <Form.Group controlId="url_gambar" className="mb-3">
             <Form.Label className="ms-2">Gambar</Form.Label>
             <Form.Control
@@ -229,15 +239,15 @@ const EditKatalog = () => {
               type="file"
               onChange={handleFileChange}
               style={{
-                backgroundColor: "#D9D9D9",
+                backgroundColor: "#E8E9EB",
                 border: "none",
                 borderRadius: "10px",
               }}
             />
             {dataEdit.url_gambar && !selectedFile && (
-              <div className="mt-2">
-                <p>Gambar saat ini:</p>
-                <img
+              <div className="mt-3 ms-2">
+                <p>Preview gambar saat ini:</p>
+                <Image
                   src={dataEdit.url_gambar}
                   alt="Preview"
                   style={{ maxWidth: "200px", maxHeight: "200px" }}
@@ -245,6 +255,7 @@ const EditKatalog = () => {
               </div>
             )}
           </Form.Group>
+
           <Form.Group controlId="deskripsi" className="mb-3">
             <Form.Label className="ms-2">Deskripsi</Form.Label>
             <Form.Control
@@ -255,9 +266,10 @@ const EditKatalog = () => {
               placeholder="Masukkan Deskripsi"
               value={dataEdit.deskripsi}
               onChange={handleChange}
-              style={{ backgroundColor: "#D9D9D9", border: "none" }}
+              style={{ backgroundColor: "#E8E9EB", border: "none" }}
             />
           </Form.Group>
+
           {message && <Alert variant="info">{message}</Alert>}
           <div className="d-flex">
             <Button
@@ -294,7 +306,7 @@ const EditKatalog = () => {
         </Modal.Footer>
       </Modal>
 
-      <Footer role="admin"/>
+      <Footer role="admin" />
     </div>
   );
 };

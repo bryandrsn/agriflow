@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { Container, Row, Col, Button, Card, Alert } from "react-bootstrap";
+import {
+  Container,
+  Row,
+  Col,
+  Button,
+  Card,
+  Alert,
+  Badge,
+} from "react-bootstrap";
 import DashboardNavbar from "../components/DashboardNavbar";
 import Footer from "../components/Footer";
 import { useNavigate } from "react-router-dom";
@@ -57,13 +65,12 @@ const Katalog = () => {
                 <Card.Body className="d-flex flex-column justify-content-between">
                   <div>
                     <Card.Title>{katalog.varietas}</Card.Title>
-                    <Card.Text>{katalog.jenis_benih}</Card.Text>
+                    <Badge bg="secondary" className="me-1">
+                      {katalog.jenis_benih}
+                    </Badge>
                   </div>
                   <div className="mt-3">
-                    <Button
-                      variant="success"
-                      className="me-2 w-100 mb-2"
-                    >
+                    <Button variant="success" className="me-2 w-100 mb-2">
                       Order
                     </Button>
                     <Button
@@ -80,7 +87,7 @@ const Katalog = () => {
           ))}
         </Row>
       </Container>
-      <Footer role="user"/>
+      <Footer role="user" />
     </div>
   );
 };

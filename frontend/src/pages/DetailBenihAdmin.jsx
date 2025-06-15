@@ -1,17 +1,16 @@
-
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { 
-  Container, 
-  Row, 
-  Col, 
-  Card, 
-  Button, 
-  Alert, 
-  Badge, 
+import {
+  Container,
+  Row,
+  Col,
+  Card,
+  Button,
+  Alert,
+  Badge,
   Breadcrumb,
   Spinner,
-  Image
+  Image,
 } from "react-bootstrap";
 import DashboardNavbar from "../components/DashboardNavbar";
 import Footer from "../components/Footer";
@@ -77,9 +76,17 @@ const DetailBenihAdmin = () => {
     return (
       <div className="bg-light min-vh-100">
         <DashboardNavbar role="admin" />
-        <Container className="py-5 d-flex justify-content-center align-items-center" style={{ minHeight: "60vh" }}>
+        <Container
+          className="py-5 d-flex justify-content-center align-items-center"
+          style={{ minHeight: "60vh" }}
+        >
           <div className="text-center">
-            <Spinner animation="border" variant="success" size="lg" className="mb-3" />
+            <Spinner
+              animation="border"
+              variant="success"
+              size="lg"
+              className="mb-3"
+            />
             <p className="text-muted">Memuat detail benih...</p>
           </div>
         </Container>
@@ -99,18 +106,22 @@ const DetailBenihAdmin = () => {
             {message}
           </Alert>
         )}
-        
+
         {!message && dataDetail.id && (
           <>
             <Row className="mb-4">
               <Col>
                 <div className="d-flex justify-content-between align-items-center">
                   <div>
-                    <h2 className="text-success mb-1 ms-4">{dataDetail.varietas}</h2>
-                    <p className="text-muted mb-0 ms-4">Detail Informasi Benih</p>
+                    <h2 className="text-success mb-1 ms-4">
+                      {dataDetail.varietas}
+                    </h2>
+                    <p className="text-muted mb-0 ms-4">
+                      Detail Informasi Benih
+                    </p>
                   </div>
-                  <Badge 
-                    bg={getStockBadgeVariant(dataDetail.stok)} 
+                  <Badge
+                    bg={getStockBadgeVariant(dataDetail.stok)}
                     className="fs-6 px-3 py-2"
                   >
                     {getStockText(dataDetail.stok)}
@@ -130,10 +141,10 @@ const DetailBenihAdmin = () => {
                         fluid
                         rounded
                         className="mb-3"
-                        style={{ 
-                          maxHeight: "400px", 
+                        style={{
+                          maxHeight: "400px",
                           objectFit: "cover",
-                          boxShadow: "0 4px 8px rgba(0,0,0,0.1)"
+                          boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
                         }}
                       />
                     </div>
@@ -160,7 +171,9 @@ const DetailBenihAdmin = () => {
                       <Col md={6}>
                         <div className="border-start border-info border-3 ps-3">
                           <h6 className="text-info mb-1">Masa Tanam</h6>
-                          <p className="mb-0 fw-medium">{dataDetail.umur} hari</p>
+                          <p className="mb-0 fw-medium">
+                            {dataDetail.umur} hari
+                          </p>
                         </div>
                       </Col>
                       <Col md={6}>
@@ -209,20 +222,14 @@ const DetailBenihAdmin = () => {
                           size="lg"
                           variant="success"
                           className="w-100 fw-medium"
+                          onClick={() =>
+                            navigate(`/edit-katalog/${dataDetail.id}`)
+                          }
                         >
                           Edit Benih
                         </Button>
                       </Col>
-                      <Col md={4}>
-                        <Button
-                          variant="outline-success"
-                          size="lg"
-                          className="w-100 fw-medium"
-                          onClick={() => navigate("/katalog-admin")}
-                        >
-                          Lihat Katalog
-                        </Button>
-                      </Col>
+                      <Col md={4}></Col>
                       <Col md={4}>
                         <Button
                           variant="outline-secondary"
@@ -253,8 +260,8 @@ const DetailBenihAdmin = () => {
           </Container>
         </div>
       )}
-      
-      <Footer role="admin"/>
+
+      <Footer role="admin" />
     </div>
   );
 };

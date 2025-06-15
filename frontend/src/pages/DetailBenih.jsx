@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { 
-  Container, 
-  Row, 
-  Col, 
-  Card, 
-  Button, 
-  Alert, 
-  Badge, 
+import {
+  Container,
+  Row,
+  Col,
+  Card,
+  Button,
+  Alert,
+  Badge,
   Spinner,
-  Image
+  Image,
 } from "react-bootstrap";
 import { BsBookmarkHeart, BsBookmarkHeartFill } from "react-icons/bs";
 import DashboardNavbar from "../components/DashboardNavbar";
@@ -133,9 +133,17 @@ const DetailBenih = () => {
     return (
       <div className="bg-light min-vh-100">
         <DashboardNavbar role="user" />
-        <Container className="py-5 d-flex justify-content-center align-items-center" style={{ minHeight: "60vh" }}>
+        <Container
+          className="py-5 d-flex justify-content-center align-items-center"
+          style={{ minHeight: "60vh" }}
+        >
           <div className="text-center">
-            <Spinner animation="border" variant="success" size="lg" className="mb-3" />
+            <Spinner
+              animation="border"
+              variant="success"
+              size="lg"
+              className="mb-3"
+            />
             <p className="text-muted">Memuat detail benih...</p>
           </div>
         </Container>
@@ -150,8 +158,8 @@ const DetailBenih = () => {
 
       <Container className="py-4">
         {message && (
-          <Alert 
-            variant={message.includes("Gagal") ? "danger" : "success"} 
+          <Alert
+            variant={message.includes("Gagal") ? "danger" : "success"}
             className="shadow-sm"
             onClose={() => setMessage("")}
             dismissible
@@ -159,19 +167,23 @@ const DetailBenih = () => {
             {message}
           </Alert>
         )}
-        
+
         {!message && dataDetail.id && (
           <>
             <Row className="mb-4">
               <Col>
                 <div className="d-flex justify-content-between align-items-center">
                   <div>
-                    <h2 className="text-success mb-1 ms-4">{dataDetail.varietas}</h2>
-                    <p className="text-muted mb-0 ms-4">Detail Informasi Benih</p>
+                    <h2 className="text-success mb-1 ms-4">
+                      {dataDetail.varietas}
+                    </h2>
+                    <p className="text-muted mb-0 ms-4">
+                      Detail Informasi Benih
+                    </p>
                   </div>
                   <div className="d-flex align-items-center">
-                    <Badge 
-                      bg={getStockBadgeVariant(dataDetail.stok)} 
+                    <Badge
+                      bg={getStockBadgeVariant(dataDetail.stok)}
                       className="fs-6 px-3 py-2 me-3"
                     >
                       {getStockText(dataDetail.stok)}
@@ -187,9 +199,9 @@ const DetailBenih = () => {
                       className="p-0"
                     >
                       {isWishlisted ? (
-                        <BsBookmarkHeartFill size={30} color="#628B35" />
+                        <BsBookmarkHeartFill size={30} color="#388E3C" />
                       ) : (
-                        <BsBookmarkHeart size={30} color="#628B35" />
+                        <BsBookmarkHeart size={30} color="#388E3C" />
                       )}
                     </Button>
                   </div>
@@ -208,10 +220,10 @@ const DetailBenih = () => {
                         fluid
                         rounded
                         className="mb-3"
-                        style={{ 
-                          maxHeight: "400px", 
+                        style={{
+                          maxHeight: "400px",
                           objectFit: "cover",
-                          boxShadow: "0 4px 8px rgba(0,0,0,0.1)"
+                          boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
                         }}
                       />
                     </div>
@@ -222,9 +234,7 @@ const DetailBenih = () => {
               <Col lg={7}>
                 <Card className="shadow-sm border-0 h-100">
                   <Card.Header className="bg-success text-white">
-                    <h5 className="mb-0">
-                      Informasi Detail
-                    </h5>
+                    <h5 className="mb-0">Informasi Detail</h5>
                   </Card.Header>
                   <Card.Body className="p-4">
                     <Row className="g-3">
@@ -237,7 +247,9 @@ const DetailBenih = () => {
                       <Col md={6}>
                         <div className="border-start border-info border-3 ps-3">
                           <h6 className="text-info mb-1">Masa Tanam</h6>
-                          <p className="mb-0 fw-medium">{dataDetail.umur} hari</p>
+                          <p className="mb-0 fw-medium">
+                            {dataDetail.umur} hari
+                          </p>
                         </div>
                       </Col>
                       <Col md={6}>
@@ -261,9 +273,7 @@ const DetailBenih = () => {
                     <hr className="my-4" />
 
                     <div>
-                      <h6 className="text-dark mb-3">
-                        Deskripsi Produk
-                      </h6>
+                      <h6 className="text-dark mb-3">Deskripsi Produk</h6>
                       <div className="bg-light rounded p-3">
                         <p className="mb-0 text-muted lh-lg">
                           {dataDetail.deskripsi}
@@ -321,15 +331,13 @@ const DetailBenih = () => {
       {dataDetail.id && (
         <div className="bg-white py-5 mt-4 border-top">
           <Container>
-            <h4 className="text-center text-success mb-4">
-              Komentar & Ulasan
-            </h4>
+            <h4 className="text-center text-success mb-4">Komentar & Ulasan</h4>
             <Komentar benih_id={id} />
           </Container>
         </div>
       )}
-      
-      <Footer role="user"/>
+
+      <Footer role="user" />
     </div>
   );
 };

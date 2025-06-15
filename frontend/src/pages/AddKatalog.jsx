@@ -139,7 +139,6 @@ const AddKatalog = () => {
           className="px-2 fw-semibold"
           onSubmit={handleConfirmSave}
         >
-          {/* Form fields tetap sama seperti sebelumnya */}
           <Form.Group controlId="varietas" className="mb-3">
             <Form.Label className="ms-2">Varietas</Form.Label>
             <Form.Control
@@ -149,21 +148,28 @@ const AddKatalog = () => {
               placeholder="Masukkan Varietas"
               value={dataAdd.varietas}
               onChange={handleChange}
-              style={{ backgroundColor: "#D9D9D9", border: "none" }}
+              style={{ backgroundColor: "#E8E9EB", border: "none" }}
             />
           </Form.Group>
+
           <Form.Group controlId="jenis" className="mb-3">
             <Form.Label className="ms-2">Jenis Benih</Form.Label>
-            <Form.Control
-              className="rounded-4 px-4 py-2"
-              type="text"
+            <Form.Select
               name="jenis"
-              placeholder="Masukkan Jenis Benih"
               value={dataAdd.jenis}
               onChange={handleChange}
-              style={{ backgroundColor: "#D9D9D9", border: "none" }}
-            />
+              className="rounded-4 ps-4 px-4 py-2 text-muted"
+              style={{
+                backgroundColor: "#E8E9EB",
+                border: "none",
+              }}
+            >
+              <option value="">Pilih Jenis Benih</option>
+              <option value={"Padi"}>Padi</option>
+              <option value={"Jagung"}>Jagung</option>
+            </Form.Select>
           </Form.Group>
+
           <Form.Group controlId="umur" className="mb-3">
             <Form.Label className="ms-2">Umur (hari)</Form.Label>
             <Form.Control
@@ -173,7 +179,7 @@ const AddKatalog = () => {
               placeholder="Masukkan Umur"
               value={dataAdd.umur}
               onChange={handleChange}
-              style={{ backgroundColor: "#D9D9D9", border: "none" }}
+              style={{ backgroundColor: "#E8E9EB", border: "none" }}
             />
           </Form.Group>
           <Form.Group controlId="harga" className="mb-3">
@@ -185,7 +191,7 @@ const AddKatalog = () => {
               placeholder="Masukkan Harga"
               value={dataAdd.harga}
               onChange={handleChange}
-              style={{ backgroundColor: "#D9D9D9", border: "none" }}
+              style={{ backgroundColor: "#E8E9EB", border: "none" }}
             />
           </Form.Group>
           <Form.Group controlId="stok" className="mb-3">
@@ -197,7 +203,7 @@ const AddKatalog = () => {
               placeholder="Masukkan Jumlah Stok"
               value={dataAdd.stok}
               onChange={handleChange}
-              style={{ backgroundColor: "#D9D9D9", border: "none" }}
+              style={{ backgroundColor: "#E8E9EB", border: "none" }}
             />
           </Form.Group>
           <Form.Group controlId="url_gambar" className="mb-3">
@@ -208,7 +214,7 @@ const AddKatalog = () => {
               name="url_gambar"
               onChange={handleFileChange}
               style={{
-                backgroundColor: "#D9D9D9",
+                backgroundColor: "#E8E9EB",
                 border: "none",
                 borderRadius: "10px",
               }}
@@ -224,7 +230,7 @@ const AddKatalog = () => {
               placeholder="Masukkan Deskripsi"
               value={dataAdd.deskripsi}
               onChange={handleChange}
-              style={{ backgroundColor: "#D9D9D9", border: "none" }}
+              style={{ backgroundColor: "#E8E9EB", border: "none" }}
             />
           </Form.Group>
           {message && <Alert variant="info">{message}</Alert>}
@@ -263,7 +269,7 @@ const AddKatalog = () => {
         </Modal.Footer>
       </Modal>
 
-      <Footer role="admin"/>
+      <Footer role="admin" />
     </div>
   );
 };
